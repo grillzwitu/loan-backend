@@ -56,6 +56,13 @@ Includes Django, DRF, Redis, PostgreSQL, and dev tooling. Auth uses **token-base
 - Trigger on loan creation
 - Log reasons and status
 - Rule-based flagging and caching
+- 🚨 Flag the loan if:
+  - More than 3 loans in the past 24 hours
+  - Requested amount exceeds NGN 5,000,000
+  - User’s email domain is used by more than 10 different users
+- Flagged loans should:
+  - Be saved with status “FLAGGED”
+  - Be visible to admins for review
 
 ---
 
