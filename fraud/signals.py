@@ -1,9 +1,17 @@
-"""Signal handlers for the fraud app."""
+"""
+Module: Signal handlers for fraud app.
+
+Defines post-save hook to trigger fraud checks on newly created LoanApplication instances.
+"""
 
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from typing import Any, Type
 from loan.models import LoanApplication
+import logging
+
+logger = logging.getLogger(__name__)
+
 from .services import run_fraud_checks
 
 @receiver(post_save, sender=LoanApplication)
@@ -18,4 +26,5 @@ def loan_post_save(sender: Type[LoanApplication], instance: LoanApplication, cre
         **kwargs: Additional keyword arguments.
     """
     if created:
+        logger.info("LoanApplication created; running fraud checks for id=%s", instance.id)
         run_fraud_checks(instance)

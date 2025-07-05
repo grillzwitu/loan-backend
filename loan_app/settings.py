@@ -1,34 +1,66 @@
+"""
+Module: Django settings for loan_backend project.
+
+Configures environment loading, installed apps, middleware, databases, caching,
+authentication, Swagger, CORS, and logging for the Loan Backend service.
+"""
+import logging
 import os
 from pathlib import Path
 import datetime
 import environ
+from typing import Any, Dict
 
-env = environ.Env(DEBUG=(bool, False))
+env: environ.Env = environ.Env(DEBUG=(bool, False))
 env.read_env()
 
-BASE_DIR = Path(__file__).resolve().parent.parent
-SECRET_KEY = env("SECRET_KEY", default="unsafe-default-key")
-DEBUG = env("DEBUG")
-ALLOWED_HOSTS = env.list("CORS_ALLOWED_ORIGINS", default=[])
+BASE_DIR: Path = Path(__file__).resolve().parent.parent
+SECRET_KEY: str = env("SECRET_KEY", default="unsafe-default-key")
+DEBUG: bool = env("DEBUG")
+ALLOWED_HOSTS: list[str] = env.list("CORS_ALLOWED_ORIGINS", default=[])
 
-INSTALLED_APPS = [
+# List of Django core, third-party, and local apps registered with this project
+INSTALLED_APPS: list[str] = [
     "django.contrib.admin", "django.contrib.auth", "django.contrib.contenttypes",
     "django.contrib.sessions", "django.contrib.messages", "django.contrib.staticfiles",
     "corsheaders", "rest_framework", "rest_framework_simplejwt", "drf_yasg",
     "users", "loan", "fraud",
 ]
 
-MIDDLEWARE = [
+# Ordered list of middleware for request/response processing (security, sessions, CORS, etc.)
+MIDDLEWARE: list[str] = [
     "django.middleware.security.SecurityMiddleware","django.contrib.sessions.middleware.SessionMiddleware",
     "corsheaders.middleware.CorsMiddleware","django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware","django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware","django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
-ROOT_URLCONF = "loan_app.urls"
-TEMPLATES = [{"BACKEND":"django.template.backends.django.DjangoTemplates","DIRS":[],"APP_DIRS":True,"OPTIONS":{"context_processors":["django.template.context_processors.debug","django.template.context_processors.request","django.contrib.auth.context_processors.auth","django.contrib.messages.context_processors.messages"],},},]
-WSGI_APPLICATION = "loan_app.wsgi.application"
+ROOT_URLCONF: str = "loan_app.urls"
 
+"""Templates configuration: DjangoTemplates engine and context processors."""
+TEMPLATES: list[dict[str, Any]] = [
+    {
+        "BACKEND": "django.template.backends.django.DjangoTemplates",
+        "DIRS": [],
+        "APP_DIRS": True,
+        "OPTIONS": {
+            "context_processors": [
+                "django.template.context_processors.debug",
+                "django.template.context_processors.request",
+                "django.contrib.auth.context_processors.auth",
+                "django.contrib.messages.context_processors.messages",
+            ]
+        },
+    },
+]
+
+"""WSGI application entry point for WSGI servers."""
+WSGI_APPLICATION: str = "loan_app.wsgi.application"
+
+# Database configuration: use SQLite for local dev or PostgreSQL per environment variables
+DATABASES: Dict[str, Any]
+# Database configuration: SQLite for local development or PostgreSQL via environment
+DATABASES: dict[str, Any]
 if env.bool("USE_SQLITE", default=True):
     DATABASES = {
         "default": {
@@ -48,7 +80,8 @@ else:
         }
     }
 
-CACHES = {
+# Cache configuration: Redis-backed cache via django-redis
+CACHES: Dict[str, Any] = {
     "default": {
         "BACKEND": "django_redis.cache.RedisCache",
         "LOCATION": env("REDIS_URL", default="redis://redis:6379/0"),
@@ -77,8 +110,19 @@ SIMPLE_JWT = {
 
 CORS_ALLOWED_ORIGINS = env.list("CORS_ALLOWED_ORIGINS", default=[])
 
-SWAGGER_SETTINGS = {"USE_SESSION_AUTH":False,"SECURITY_DEFINITIONS":{"Bearer":{"type":"apiKey","name":"Authorization","in":"header"}},}
-LOGGING = {
+# Swagger / OpenAPI settings for documentation UI (Swagger & Redoc)
+SWAGGER_SETTINGS: Dict[str, Any] = {
+    "USE_SESSION_AUTH": False,
+    "SECURITY_DEFINITIONS": {
+        "Bearer": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header"
+        }
+    }
+}
+# Logging configuration: formatters, handlers, and root logger settings
+LOGGING: Dict[str, Any] = {
     "version": 1,
     "disable_existing_loggers": False,
     "formatters": {

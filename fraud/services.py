@@ -11,9 +11,13 @@ from django.contrib.auth import get_user_model
 from loan.models import LoanApplication
 from .models import FraudFlag
 
+import logging
+from typing import List
+logger: logging.Logger = logging.getLogger(__name__)
+
 User = get_user_model()
 
-def run_fraud_checks(loan: LoanApplication) -> list[str]:
+def run_fraud_checks(loan: LoanApplication) -> List[str]:
     """
     Run rule-based fraud detection checks on a LoanApplication instance.
 
@@ -34,8 +38,8 @@ def run_fraud_checks(loan: LoanApplication) -> list[str]:
     reasons: list[str] = []
 
     # Rule: more than 3 loans in the past 24 hours
-    one_day_ago = timezone.now() - datetime.timedelta(days=1)
-    recent_loan_count = LoanApplication.objects.filter(
+    one_day_ago: datetime.datetime = timezone.now() - datetime.timedelta(days=1)
+    recent_loan_count: int = LoanApplication.objects.filter(
         user=loan.user, created_at__gte=one_day_ago
     ).count()
     if recent_loan_count > 3:
@@ -46,19 +50,24 @@ def run_fraud_checks(loan: LoanApplication) -> list[str]:
         reasons.append("Amount exceeds threshold")
 
     # Rule: email domain usage
-    domain = loan.user.email.split("@")[-1]
-    domain_user_count = User.objects.filter(
+    domain: str = loan.user.email.split("@")[-1]
+    domain_user_count: int = User.objects.filter(
         email__iendswith=domain
     ).distinct().count()
     if domain_user_count > 10:
         reasons.append("Email domain used by more than 10 users")
 
     # Persist flags
+    if reasons:
+        logger.warning(
+            "Loan id=%s flagged for reasons: %s", loan.id, reasons
+        )
     for reason in reasons:
         FraudFlag.objects.create(loan=loan, reason=reason)
 
     # Update loan status if flagged
     if reasons:
+        logger.info("Setting status FLAGGED for loan id=%s", loan.id)
         loan.status = "FLAGGED"
         loan.save(update_fields=["status"])
 

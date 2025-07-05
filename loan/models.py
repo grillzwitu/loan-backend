@@ -1,6 +1,11 @@
 """
 Module: Defines the LoanApplication model representing user loan requests.
 """
+import datetime
+import decimal
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
 from django.db import models
 from django.conf import settings
 
@@ -22,11 +27,11 @@ class LoanApplication(models.Model):
         ('FLAGGED', 'Flagged'),
         ('WITHDRAWN', 'Withdrawn'),
     ]
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    amount = models.DecimalField(max_digits=10, decimal_places=2)
-    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='PENDING')
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    user: User = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    amount: decimal.Decimal = models.DecimalField(max_digits=10, decimal_places=2)
+    status: str = models.CharField(max_length=10, choices=STATUS_CHOICES, default='PENDING')
+    created_at: datetime.datetime = models.DateTimeField(auto_now_add=True)
+    updated_at: datetime.datetime = models.DateTimeField(auto_now=True)
 
     def withdraw(self) -> None:
         """

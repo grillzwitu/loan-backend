@@ -1,8 +1,11 @@
 """
 Module: URL routing for user-related API endpoints (registration, login, token refresh, logout).
+
+Defines URL patterns for user authentication workflows.
 """
 from typing import List, Any
 from django.urls import path
+from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from .views import RegisterView, LogoutView
 

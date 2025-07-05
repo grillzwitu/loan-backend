@@ -4,7 +4,10 @@ Module: API views for user registration, login, token refresh, and logout.
 This module provides endpoints for creating users, obtaining JWT tokens,
 refreshing tokens, and logging out authenticated users.
 """
+import logging
 from typing import Any, Dict
+
+logger: logging.Logger = logging.getLogger(__name__)
 from rest_framework import generics, status
 from rest_framework.request import Request
 from rest_framework.response import Response
@@ -38,6 +41,7 @@ class RegisterView(generics.CreateAPIView):
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
         refresh = RefreshToken.for_user(user)
+        logger.info("Issued JWT refresh and access tokens for user: %s", user.username)
         data = {
             'user': UserSerializer(user).data,
             'refresh': str(refresh),
@@ -63,4 +67,5 @@ class LogoutView(APIView):
             Response: HTTP 204 No Content indicating successful logout.
         """
         # Client should discard token; no server-side action
+        logger.info("User %s logged out (logout endpoint called)", request.user.username)
         return Response(status=status.HTTP_204_NO_CONTENT)

@@ -5,14 +5,14 @@ from django.contrib.auth import get_user_model
 User = get_user_model()
 
 @pytest.fixture
-def api_client():
+def api_client() -> APIClient:
     """
     Returns an instance of the DRF APIClient for making HTTP requests in tests.
     """
     return APIClient()
 
 @pytest.fixture
-def user(db):
+def user(db) -> User:
     """
     Create and return a default test user.
     """
@@ -22,7 +22,7 @@ def user(db):
         password="password"
     )
 @pytest.fixture
-def auth_client(api_client, user):
+def auth_client(api_client: APIClient, user: User) -> APIClient:
     """
     Returns an APIClient authenticated with a JWT access token for the test user.
     """

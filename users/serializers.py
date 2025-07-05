@@ -1,7 +1,10 @@
 """
 Module: Serializers for the users app, handling user data transformation and registration.
 """
+import logging
 from django.contrib.auth import get_user_model
+
+logger: logging.Logger = logging.getLogger(__name__)
 from rest_framework import serializers
 from typing import Any, Dict
 from django.contrib.auth.models import AbstractUser
@@ -36,9 +39,11 @@ class RegisterSerializer(serializers.ModelSerializer):
         Returns:
             User: The newly created User instance.
         """
+        # Create and hash password using Django's create_user
         user = User.objects.create_user(
             username=validated_data['username'],
             email=validated_data.get('email'),
             password=validated_data['password']
         )
+        logger.info("Registered new user: %s", user.username)
         return user

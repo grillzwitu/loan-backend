@@ -1,9 +1,12 @@
+"""
+Module: Integration tests for loan backend API endpoints with Simple JWT authentication.
+"""
 import pytest
 from django.urls import reverse
 from rest_framework import status
 
 @pytest.mark.django_db
-def test_user_registration_and_token_flow(api_client):
+def test_user_registration_and_token_flow(api_client) -> None:
     """
     Test registration endpoint and Simple JWT token issuance.
     """
@@ -16,7 +19,7 @@ def test_user_registration_and_token_flow(api_client):
     assert 'refresh' in response.data
 
 @pytest.mark.django_db
-def test_token_obtain_and_refresh(api_client, user):
+def test_token_obtain_and_refresh(api_client, user) -> None:
     """
     Test login and token refresh endpoints using Simple JWT.
     """
@@ -33,7 +36,7 @@ def test_token_obtain_and_refresh(api_client, user):
     assert 'access' in refresh_resp.data
 
 @pytest.mark.django_db
-def test_logout_endpoint(auth_client):
+def test_logout_endpoint(auth_client) -> None:
     """
     Test logout endpoint responds with HTTP 204 No Content.
     """
@@ -42,7 +45,7 @@ def test_logout_endpoint(auth_client):
     assert resp.status_code == status.HTTP_204_NO_CONTENT
 
 @pytest.mark.django_db
-def test_loan_endpoints(auth_client):
+def test_loan_endpoints(auth_client) -> None:
     """
     Test creating, listing, and retrieving LoanApplication via API endpoints.
     """
@@ -71,7 +74,7 @@ from django.urls import reverse
 from rest_framework import status
 
 @pytest.mark.django_db
-def test_withdraw_loan_endpoint(auth_client):
+def test_withdraw_loan_endpoint(auth_client) -> None:
     """
     Test withdrawing a pending loan via API endpoint and updating status.
     """

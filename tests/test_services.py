@@ -7,7 +7,7 @@ from fraud.services import run_fraud_checks
 User = get_user_model()
 
 @pytest.mark.django_db
-def test_run_fraud_checks_flags_high_amount():
+def test_run_fraud_checks_flags_high_amount() -> None:
     """
     run_fraud_checks should flag loans whose amount exceeds threshold.
     """
@@ -21,7 +21,7 @@ def test_run_fraud_checks_flags_high_amount():
     assert flags.first().reason == "Amount exceeds threshold"
 
 @pytest.mark.django_db
-def test_run_fraud_checks_no_flags_for_low_amount():
+def test_run_fraud_checks_no_flags_for_low_amount() -> None:
     """
     run_fraud_checks should not flag loans whose amount is below threshold.
     """
@@ -32,7 +32,7 @@ def test_run_fraud_checks_no_flags_for_low_amount():
     assert not FraudFlag.objects.filter(loan=loan).exists()
 
 @pytest.mark.django_db
-def test_run_fraud_checks_flags_many_recent_loans():
+def test_run_fraud_checks_flags_many_recent_loans() -> None:
     """
     run_fraud_checks should flag when more than 3 loans exist in the past 24 hours.
     """
@@ -52,7 +52,7 @@ def test_run_fraud_checks_flags_many_recent_loans():
     assert loan4.status == "FLAGGED"
 
 @pytest.mark.django_db
-def test_run_fraud_checks_flags_many_users_same_domain():
+def test_run_fraud_checks_flags_many_users_same_domain() -> None:
     """
     run_fraud_checks should flag when email domain is used by more than 10 users.
     """

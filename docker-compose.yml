@@ -1,5 +1,9 @@
+# Docker Compose file for Loan Backend local development
+# Using Compose specification version 3.8
 version: '3.8'
+# Service definitions
 services:
+  # PostgreSQL service (version 17) for relational data storage
   db:
     image: postgres:17
     env_file: .env.example
@@ -7,13 +11,16 @@ services:
       - postgres_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+  # Redis service for caching and fast data lookups
   redis:
     image: redis:latest
     ports:
       - "6379:6379"
+  # Django web service running Gunicorn WSGI server
   web:
     build: .
     command: gunicorn loan_app.wsgi:application --bind 0.0.0.0:8000
+    # Docker volumes for persistent data
     volumes:
       - .:/app
     ports:
@@ -23,4 +30,5 @@ services:
       - db
       - redis
 volumes:
+  # Volume for PostgreSQL data persistence
   postgres_data:

@@ -1,15 +1,21 @@
 """
 Module: Serializers for the loan app, handling serialization and deserialization of LoanApplication objects.
 """
+import logging
 from rest_framework import serializers
-from typing import Any, Dict, Tuple, Type
+from typing import Any, Dict, List, Tuple, Type
 from .models import LoanApplication
 
+logger: logging.Logger = logging.getLogger(__name__)
+
 class LoanApplicationSerializer(serializers.ModelSerializer):
-    user = serializers.PrimaryKeyRelatedField(read_only=True)
     """
     Serializer for LoanApplication instances to handle API input/output.
+
+    Attributes:
+        user (PrimaryKeyRelatedField): Read-only field representing the loan applicant.
     """
+    user: serializers.PrimaryKeyRelatedField = serializers.PrimaryKeyRelatedField(read_only=True)
     class Meta:
         model: Type[LoanApplication] = LoanApplication
         fields: Tuple[str, ...] = ("id", "user", "amount", "status", "created_at", "updated_at")
@@ -27,4 +33,9 @@ class LoanApplicationSerializer(serializers.ModelSerializer):
             LoanApplication: The newly created loan application instance.
         """
         from .models import LoanApplication
+        logger.info(
+            "Serializer creating LoanApplication for user: %s with data: %s",
+            user.username,
+            validated_data
+        )
         return LoanApplication.objects.create(user=user, **validated_data)

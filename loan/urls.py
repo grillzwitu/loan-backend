@@ -1,7 +1,11 @@
 """
 Module: URL routing for loan application API endpoints.
 
-Defines URL patterns for loan operations (list/create, retrieve).
+Endpoints provided:
+  - GET    /api/loan/               List loan applications
+  - POST   /api/loan/               Create a new loan application
+  - GET    /api/loan/{id}/          Retrieve a specific loan application
+  - POST   /api/loan/{id}/withdraw/ Withdraw a pending loan application
 """
 from typing import List
 from django.urls import path, URLPattern
