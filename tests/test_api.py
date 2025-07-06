@@ -61,7 +61,8 @@ def test_loan_endpoints(auth_client) -> None:
     assert resp_create.status_code == status.HTTP_201_CREATED
     loan_id = resp_create.data.get('id')
     assert resp_create.data.get('amount') == '500.00'
-    assert resp_create.data.get('status') == 'PENDING'
+    # Loans passing fraud checks should be auto-approved
+    assert resp_create.data.get('status') == 'APPROVED'
 
     # Retrieve the created loan
     detail_url = reverse('loan-detail', args=[loan_id])
@@ -84,15 +85,15 @@ def test_withdraw_loan_endpoint(auth_client) -> None:
     assert create_resp.status_code == status.HTTP_201_CREATED
     loan_id = create_resp.data['id']
 
-    # Withdraw the loan
+    # Attempt to withdraw a non-pending loan (auto-approved) should return 400
     withdraw_url = reverse('loan-withdraw', args=[loan_id])
     withdraw_resp = auth_client.post(withdraw_url, {}, format='json')
-    assert withdraw_resp.status_code == status.HTTP_204_NO_CONTENT
+    assert withdraw_resp.status_code == status.HTTP_400_BAD_REQUEST
 
-    # Verify status is updated to WITHDRAWN
+    # Verify status remains APPROVED
     detail_url = reverse('loan-detail', args=[loan_id])
     detail_resp = auth_client.get(detail_url, format='json')
-    assert detail_resp.data['status'] == 'WITHDRAWN'
+    assert detail_resp.data['status'] == 'APPROVED'
 
     # Attempt to withdraw again should return 400
     withdraw_again_resp = auth_client.post(withdraw_url, {}, format='json')

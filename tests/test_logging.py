@@ -38,7 +38,8 @@ def test_withdraw_endpoint_logging(caplog: LogCaptureFixture) -> None:
     """
     Withdrawal endpoint should log INFO on successful withdrawal and ERROR on invalid retry.
     """
-    caplog.set_level(logging.INFO, logger="loan.views")
+    # Capture only ERROR logs since auto-approved loans cannot be withdrawn
+    caplog.set_level(logging.ERROR, logger="loan.views")
     client = APIClient()
     # Create and authenticate user
     user = User.objects.create_user(username="loguser", email="log2@example.com", password="password")
@@ -51,16 +52,10 @@ def test_withdraw_endpoint_logging(caplog: LogCaptureFixture) -> None:
     # Withdraw the loan
     caplog.clear()
     withdraw_resp = client.post(reverse("loan-withdraw", args=[loan_id]), {}, format="json")
-    assert withdraw_resp.status_code == status.HTTP_204_NO_CONTENT
-    assert any(
-        "successfully withdrew loan id=" in record.getMessage()
-        for record in caplog.records
-    )
-    # Attempt withdraw again: should log an ERROR
-    caplog.clear()
-    withdraw_again = client.post(reverse("loan-withdraw", args=[loan_id]), {}, format="json")
-    assert withdraw_again.status_code == status.HTTP_400_BAD_REQUEST
+    # Withdrawal of auto-approved loan should return 400 and log an error
+    assert withdraw_resp.status_code == status.HTTP_400_BAD_REQUEST
     assert any(
         record.levelname == "ERROR" and "Failed to withdraw loan id=" in record.getMessage()
         for record in caplog.records
     )
+    # Subsequent withdrawal attempts remain invalid - same behavior

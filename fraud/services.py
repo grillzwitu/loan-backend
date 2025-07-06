@@ -65,10 +65,15 @@ def run_fraud_checks(loan: LoanApplication) -> List[str]:
     for reason in reasons:
         FraudFlag.objects.create(loan=loan, reason=reason)
 
-    # Update loan status if flagged
+    # Update loan status based on fraud detection results
     if reasons:
         logger.info("Setting status FLAGGED for loan id=%s", loan.id)
         loan.status = "FLAGGED"
+        loan.save(update_fields=["status"])
+    else:
+        # Auto-approve loans with no fraud flags
+        logger.info("Auto-approving loan id=%s with no fraud flags", loan.id)
+        loan.status = "APPROVED"
         loan.save(update_fields=["status"])
 
     return reasons

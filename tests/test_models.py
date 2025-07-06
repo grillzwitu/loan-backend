@@ -3,6 +3,13 @@ from django.contrib.auth import get_user_model
 from loan.models import LoanApplication
 from fraud.models import FraudFlag
 
+from django.db.models.signals import post_save
+from fraud.signals import loan_post_save
+from loan.models import LoanApplication
+
+# Disable post_save fraud checks for LoanApplication so withdraw logic can be tested
+post_save.disconnect(receiver=loan_post_save, sender=LoanApplication)
+
 User = get_user_model()
 
 @pytest.mark.django_db

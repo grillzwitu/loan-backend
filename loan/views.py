@@ -14,6 +14,7 @@ from rest_framework.views import APIView
 
 from .models import LoanApplication
 from .serializers import LoanApplicationSerializer
+from fraud.services import run_fraud_checks
 
 logger: logging.Logger = logging.getLogger(__name__)
 
@@ -31,6 +32,9 @@ class LoanApplicationListCreateView(generics.ListCreateAPIView):
         amount = request.data.get("amount")
         logger.info("Creating LoanApplication for user=%s, amount=%s", request.user.username, amount)
         loan = LoanApplication.objects.create(user=request.user, amount=Decimal(amount))
+        # Run fraud checks (in case signal is disconnected) and refresh instance to include status changes
+        run_fraud_checks(loan)
+        loan.refresh_from_db()
         serializer = self.get_serializer(loan)
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
