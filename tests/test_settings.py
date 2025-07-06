@@ -1,19 +1,29 @@
 """
 Module: Unit tests for the Loan Backend settings fallback logic.
-Verifies DATABASES configuration for SQLite and PostgreSQL based on the USE_SQLITE flag.
+Verifies DATABASES configuration for SQLite and PostgreSQL based on
+the USE_SQLITE flag.
 """
+
 import importlib
-from pathlib import Path
+# from pathlib import Path (unused)
+
 import pytest
 from pytest import MonkeyPatch
 
-@pytest.mark.parametrize("use_sqlite, expected_engine", [
-    (True, "django.db.backends.sqlite3"),
-    (False, "django.db.backends.postgresql"),
-])
-def test_database_engine_fallback(monkeypatch: MonkeyPatch, use_sqlite: bool, expected_engine: str) -> None:
+
+@pytest.mark.parametrize(
+    "use_sqlite, expected_engine",
+    [
+        (True, "django.db.backends.sqlite3"),
+        (False, "django.db.backends.postgresql"),
+    ],
+)
+def test_database_engine_fallback(
+    monkeypatch: MonkeyPatch, use_sqlite: bool, expected_engine: str
+) -> None:
     """
-    Verify DATABASES setting falls back to SQLite or PostgreSQL based on USE_SQLITE env var.
+    Verify DATABASES setting falls back to SQLite or PostgreSQL based
+    on USE_SQLITE env var.
     """
     # Arrange environment variables for test
     monkeypatch.setenv("USE_SQLITE", str(use_sqlite))
@@ -25,6 +35,7 @@ def test_database_engine_fallback(monkeypatch: MonkeyPatch, use_sqlite: bool, ex
 
     # Reload settings module to apply new environment
     import loan_app.settings as settings_module
+
     importlib.reload(settings_module)
 
     # Act: inspect the DATABASES config

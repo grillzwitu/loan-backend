@@ -2,13 +2,17 @@
 Module: Model-level tests for the FraudFlag model.
 Verifies relationship, string representation, and timestamp behavior.
 """
+
 import pytest
 from django.contrib.auth import get_user_model
+from typing import Any
 from django.utils import timezone
-from loan.models import LoanApplication
-from fraud.models import FraudFlag
 
-User = get_user_model()
+from fraud.models import FraudFlag
+from loan.models import LoanApplication
+
+User: Any = get_user_model()
+
 
 @pytest.mark.django_db
 def test_fraudflag_related_name_and_str() -> None:
@@ -16,7 +20,9 @@ def test_fraudflag_related_name_and_str() -> None:
     Ensure FraudFlag is accessible via loan.fraud_flags and __str__ is correct.
     """
     user = User.objects.create_user(
-        username="flaguser", email="flag@example.com", password="password"
+        username="flaguser",
+        email="flag@example.com",
+        password="password",
     )
     loan = LoanApplication.objects.create(user=user, amount=500)
     flag = FraudFlag.objects.create(loan=loan, reason="Test reason")
@@ -27,13 +33,17 @@ def test_fraudflag_related_name_and_str() -> None:
     expected_str = f"Flag {flag.id} - {loan}"
     assert str(flag) == expected_str
 
+
 @pytest.mark.django_db
 def test_fraudflag_timestamp_auto_now_add() -> None:
     """
-    Verify that flagged_at is automatically set to the current time upon creation.
+    Verify that flagged_at is automatically set to the current time
+    upon creation.
     """
-    user = User.objects.create_user(
-        username="timeuser", email="time@example.com", password="password"
+    user = User.objects.create_user(  # type: ignore[attr-defined]
+        username="timeuser",
+        email="time@example.com",
+        password="password",
     )
     loan = LoanApplication.objects.create(user=user, amount=1000)
     before = timezone.now()

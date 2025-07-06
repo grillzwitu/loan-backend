@@ -4,12 +4,12 @@ Module: Django settings for loan_backend project.
 Configures environment loading, installed apps, middleware, databases, caching,
 authentication, Swagger, CORS, and logging for the Loan Backend service.
 """
-import logging
-import os
-from pathlib import Path
+
 import datetime
-import environ
+from pathlib import Path
 from typing import Any, Dict
+
+import environ  # type: ignore[import-untyped]
 
 env: environ.Env = environ.Env(DEBUG=(bool, False))
 env.read_env()
@@ -21,18 +21,32 @@ ALLOWED_HOSTS: list[str] = env.list("CORS_ALLOWED_ORIGINS", default=[])
 
 # List of Django core, third-party, and local apps registered with this project
 INSTALLED_APPS: list[str] = [
-    "django.contrib.admin", "django.contrib.auth", "django.contrib.contenttypes",
-    "django.contrib.sessions", "django.contrib.messages", "django.contrib.staticfiles",
-    "corsheaders", "rest_framework", "rest_framework_simplejwt", "drf_yasg",
-    "users", "loan", "fraud",
+    "django.contrib.admin",
+    "django.contrib.auth",
+    "django.contrib.contenttypes",
+    "django.contrib.sessions",
+    "django.contrib.messages",
+    "django.contrib.staticfiles",
+    "corsheaders",
+    "rest_framework",
+    "rest_framework_simplejwt",
+    "drf_yasg",
+    "users",
+    "loan",
+    "fraud",
 ]
 
-# Ordered list of middleware for request/response processing (security, sessions, CORS, etc.)
+# Ordered list of middleware for request/response processing
+# (security, sessions, CORS, etc.)
 MIDDLEWARE: list[str] = [
-    "django.middleware.security.SecurityMiddleware","django.contrib.sessions.middleware.SessionMiddleware",
-    "corsheaders.middleware.CorsMiddleware","django.middleware.common.CommonMiddleware",
-    "django.middleware.csrf.CsrfViewMiddleware","django.contrib.auth.middleware.AuthenticationMiddleware",
-    "django.contrib.messages.middleware.MessageMiddleware","django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "django.middleware.security.SecurityMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "corsheaders.middleware.CorsMiddleware",
+    "django.middleware.common.CommonMiddleware",
+    "django.middleware.csrf.CsrfViewMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
+    "django.contrib.messages.middleware.MessageMiddleware",
+    "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
 
 ROOT_URLCONF: str = "loan_app.urls"
@@ -54,13 +68,12 @@ TEMPLATES: list[dict[str, Any]] = [
     },
 ]
 
-"""WSGI application entry point for WSGI servers."""
+"""WSGI application entry point for WSGI
+servers."""
 WSGI_APPLICATION: str = "loan_app.wsgi.application"
 
-# Database configuration: use SQLite for local dev or PostgreSQL per environment variables
-DATABASES: Dict[str, Any]
-# Database configuration: SQLite for local development or PostgreSQL via environment
-DATABASES: dict[str, Any]
+# Database configuration: SQLite for local development
+# or PostgreSQL via environment
 if env.bool("USE_SQLITE", default=True):
     DATABASES = {
         "default": {
@@ -95,17 +108,25 @@ STATIC_URL = "/static/"
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
-        "rest_framework_simplejwt.authentication.JWTAuthentication",
-        "rest_framework.authentication.SessionAuthentication"
+        "rest_framework_simplejwt.authentication."
+        "JWTAuthentication",
+        "rest_framework.authentication."
+        "SessionAuthentication",
     ),
-    "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
-    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
+    "DEFAULT_PERMISSION_CLASSES": (
+        "rest_framework.permissions.IsAuthenticated",
+    ),
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",  # noqa: E501
     "PAGE_SIZE": 10,
 }
 
 SIMPLE_JWT = {
-    "ACCESS_TOKEN_LIFETIME": datetime.timedelta(seconds=env("JWT_EXPIRATION_DELTA_SECONDS", default=300)),
-    "REFRESH_TOKEN_LIFETIME": datetime.timedelta(seconds=env("JWT_REFRESH_EXPIRATION_DELTA_SECONDS", default=86400)),
+    "ACCESS_TOKEN_LIFETIME": datetime.timedelta(
+        seconds=env("JWT_EXPIRATION_DELTA_SECONDS", default=300)
+    ),
+    "REFRESH_TOKEN_LIFETIME": datetime.timedelta(
+        seconds=env("JWT_REFRESH_EXPIRATION_DELTA_SECONDS", default=86400)
+    ),
     "SIGNING_KEY": env("JWT_SECRET_KEY", default=SECRET_KEY),
     "ALGORITHM": env("JWT_ALGORITHM", default="HS256"),
 }
@@ -119,10 +140,9 @@ SWAGGER_SETTINGS: Dict[str, Any] = {
         "Bearer": {
             "type": "apiKey",
             "name": "Authorization",
-            "in": "header"
-        }
-    }
-    
+            "in": "header",
+        },
+    },
 }
 
 # Silence drf_yasg deprecation warning for changed renderer formats
@@ -135,17 +155,14 @@ LOGGING: Dict[str, Any] = {
     "formatters": {
         "verbose": {
             "format": "[{levelname}] {asctime} {name} {message}",
-            "style": "{"
-        }
+            "style": "{",
+        },
     },
     "handlers": {
         "console": {
             "class": "logging.StreamHandler",
-            "formatter": "verbose"
-        }
+            "formatter": "verbose",
+        },
     },
-    "root": {
-        "handlers": ["console"],
-        "level": "INFO"
-    }
+    "root": {"handlers": ["console"], "level": "INFO"},
 }

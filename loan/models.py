@@ -1,13 +1,11 @@
 """
 Module: Defines the LoanApplication model representing user loan requests.
 """
-import datetime
-import decimal
-from django.contrib.auth import get_user_model
 
-User = get_user_model()
-from django.db import models
+
 from django.conf import settings
+from django.db import models
+
 
 class LoanApplication(models.Model):
     """
@@ -20,24 +18,38 @@ class LoanApplication(models.Model):
         created_at (datetime): Creation timestamp.
         updated_at (datetime): Last modification timestamp.
     """
+
     STATUS_CHOICES = [
-        ('PENDING', 'Pending'),
-        ('APPROVED', 'Approved'),
-        ('REJECTED', 'Rejected'),
-        ('FLAGGED', 'Flagged'),
-        ('WITHDRAWN', 'Withdrawn'),
+        ("PENDING", "Pending"),
+        ("APPROVED", "Approved"),
+        ("REJECTED", "Rejected"),
+        ("FLAGGED", "Flagged"),
+        ("WITHDRAWN", "Withdrawn"),
     ]
-    user: User = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    amount: decimal.Decimal = models.DecimalField(max_digits=10, decimal_places=2)
-    status: str = models.CharField(max_length=10, choices=STATUS_CHOICES, default='PENDING')
-    created_at: datetime.datetime = models.DateTimeField(auto_now_add=True)
-    updated_at: datetime.datetime = models.DateTimeField(auto_now=True)
+    id: int
+    user: models.ForeignKey = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+    )
+    amount: models.DecimalField = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+    )
+    status: models.CharField = models.CharField(
+        max_length=10,
+        choices=STATUS_CHOICES,
+        default="PENDING",
+    )
+    created_at: models.DateTimeField = models.DateTimeField(auto_now_add=True)
+    updated_at: models.DateTimeField = models.DateTimeField(auto_now=True)
 
     class Meta:
         """
-        Default ordering for LoanApplication queries to prevent pagination warnings.
+        Default ordering for LoanApplication queries to
+        prevent pagination warnings.
         """
-        ordering: list[str] = ["id"]
+
+        ordering = ["id"]
 
     def withdraw(self) -> None:
         """
@@ -46,10 +58,10 @@ class LoanApplication(models.Model):
         Raises:
             ValueError: If the loan is not in PENDING status.
         """
-        if self.status != 'PENDING':
+        if self.status != "PENDING":
             raise ValueError("Only pending loans can be withdrawn")
-        self.status = 'WITHDRAWN'
-        self.save(update_fields=['status'])
+        self.status = "WITHDRAWN"
+        self.save(update_fields=["status"])
 
     def __str__(self) -> str:
         """
@@ -58,4 +70,4 @@ class LoanApplication(models.Model):
         Returns:
             str: Formatted string containing loan id and user.
         """
-        return f'Loan {self.id} - {self.user}'
+        return f"Loan {self.id} - {self.user}"

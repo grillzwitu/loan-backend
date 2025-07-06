@@ -1,23 +1,31 @@
 """
-Module: Strictly typed tests for permissions on loan endpoints for regular and admin users.
+Module: Strictly typed tests for permissions on
+loan endpoints for regular and admin users.
 
-These tests ensure that regular users can only view their own loans and cannot perform admin actions,
-and that admin users have appropriate access to all loan API endpoints.
+These tests ensure that regular users can only view their own loans and
+cannot perform admin actions, and that admin users have appropriate
+access to all loan API endpoints.
 """
-import pytest
-from django.contrib.auth import get_user_model
-from django.urls import reverse
-from rest_framework import status
-from rest_framework.test import APIClient
-from rest_framework.response import Response
+
 from typing import Any, List
 
-from loan.models import LoanApplication
+import pytest
+from django.urls import reverse
+from rest_framework import status
+from rest_framework.response import Response
+from rest_framework.test import APIClient
 
-User = get_user_model()
+from loan.models import LoanApplication
+from django.contrib.auth import get_user_model
+
+User: Any = get_user_model()
+
 
 @pytest.mark.django_db
-def test_regular_user_list_loans(auth_client: APIClient, user: User) -> None:
+def test_regular_user_list_loans(
+    auth_client: APIClient,
+    user: Any,
+) -> None:
     """
     Verify that a regular user can only list their own loan applications.
 
@@ -28,20 +36,35 @@ def test_regular_user_list_loans(auth_client: APIClient, user: User) -> None:
     Returns:
         None
     """
-    other_user: User = User.objects.create_user(
-        username="other", email="other@example.com", password="password"
+    other_user = User.objects.create_user(  # type: ignore[attr-defined]
+        username="other",
+        email="other@example.com",
+        password="password",
     )
-    loan1: LoanApplication = LoanApplication.objects.create(user=user, amount=100)
-    loan2: LoanApplication = LoanApplication.objects.create(user=other_user, amount=200)
+    loan1: LoanApplication = LoanApplication.objects.create(
+        user=user,
+        amount=100,
+    )
+    loan2: LoanApplication = LoanApplication.objects.create(
+        user=other_user,
+        amount=200,
+    )
     url: str = reverse("loan-list-create")
     response: Response = auth_client.get(url, format="json")
     assert response.status_code == status.HTTP_200_OK
-    ids: List[int] = [item["id"] for item in response.data["results"]]
-    assert loan1.id in ids
-    assert loan2.id not in ids
+    ids: List[int] = [
+        item["id"]
+        for item in response.data["results"]
+    ]
+    assert loan1.pk in ids
+    assert loan2.pk not in ids
+
 
 @pytest.mark.django_db
-def test_regular_user_cannot_retrieve_other_loan(auth_client: APIClient, user: User) -> None:
+def test_regular_user_cannot_retrieve_other_loan(
+    auth_client: APIClient,
+    user: Any,
+) -> None:
     """
     Verify that a regular user cannot retrieve another user's loan.
 
@@ -52,16 +75,25 @@ def test_regular_user_cannot_retrieve_other_loan(auth_client: APIClient, user: U
     Returns:
         None
     """
-    other_user: User = User.objects.create_user(
-        username="other", email="other@example.com", password="password"
+    other_user = User.objects.create_user(  # type: ignore[attr-defined]
+        username="other",
+        email="other@example.com",
+        password="password",
     )
-    loan: LoanApplication = LoanApplication.objects.create(user=other_user, amount=300)
+    loan: LoanApplication = LoanApplication.objects.create(
+        user=other_user,
+        amount=300,
+    )
     url: str = reverse("loan-detail", args=[loan.id])
     response: Response = auth_client.get(url, format="json")
     assert response.status_code == status.HTTP_404_NOT_FOUND
 
+
 @pytest.mark.django_db
-def test_admin_user_list_all_loans(admin_client: APIClient, user: User) -> None:
+def test_admin_user_list_all_loans(
+    admin_client: APIClient,
+    user: Any,
+) -> None:
     """
     Verify that an admin user can list all loans regardless of owner.
 
@@ -72,20 +104,35 @@ def test_admin_user_list_all_loans(admin_client: APIClient, user: User) -> None:
     Returns:
         None
     """
-    other_user: User = User.objects.create_user(
-        username="other2", email="other2@example.com", password="password"
+    other_user = User.objects.create_user(  # type: ignore[attr-defined]
+        username="other2",
+        email="other2@example.com",
+        password="password",
     )
-    loan1: LoanApplication = LoanApplication.objects.create(user=user, amount=150)
-    loan2: LoanApplication = LoanApplication.objects.create(user=other_user, amount=250)
+    loan1: LoanApplication = LoanApplication.objects.create(
+        user=user,
+        amount=150,
+    )
+    loan2: LoanApplication = LoanApplication.objects.create(
+        user=other_user,
+        amount=250,
+    )
     url: str = reverse("loan-list-create")
     response: Response = admin_client.get(url, format="json")
     assert response.status_code == status.HTTP_200_OK
-    ids: List[int] = [item["id"] for item in response.data["results"]]
+    ids: List[int] = [
+        item["id"]
+        for item in response.data["results"]
+    ]
     assert loan1.id in ids
     assert loan2.id in ids
 
+
 @pytest.mark.django_db
-def test_admin_user_retrieve_any_loan(admin_client: APIClient, user: User) -> None:
+def test_admin_user_retrieve_any_loan(
+    admin_client: APIClient,
+    user: Any,
+) -> None:
     """
     Verify that an admin user can retrieve any loan by ID.
 
@@ -96,16 +143,23 @@ def test_admin_user_retrieve_any_loan(admin_client: APIClient, user: User) -> No
     Returns:
         None
     """
-    loan: LoanApplication = LoanApplication.objects.create(user=user, amount=300)
+    loan: LoanApplication = LoanApplication.objects.create(
+        user=user,
+        amount=300,
+    )
     url: str = reverse("loan-detail", args=[loan.id])
     response: Response = admin_client.get(url, format="json")
     assert response.status_code == status.HTTP_200_OK
     assert response.data.get("id") == loan.id
 
+
 @pytest.mark.django_db
-def test_regular_user_cannot_access_admin_endpoints(auth_client: APIClient, user: User) -> None:
+def test_regular_user_cannot_access_admin_endpoints(
+    auth_client: APIClient, user: User
+) -> None:
     """
-    Verify that regular users cannot access admin-only endpoints for approve, reject, and flag.
+    Verify that regular users cannot access admin-only endpoints for approve,
+    reject, and flag.
 
     Args:
         auth_client (APIClient): Authenticated client for regular user.
@@ -114,14 +168,31 @@ def test_regular_user_cannot_access_admin_endpoints(auth_client: APIClient, user
     Returns:
         None
     """
-    loan: LoanApplication = LoanApplication.objects.create(user=user, amount=400)
-    for action in ("approve", "reject", "flag"):
-        url: str = reverse(f"loan-{action}", args=[loan.id])
-        response: Response = auth_client.post(url, {}, format="json")
+    loan: LoanApplication = LoanApplication.objects.create(
+        user=user,
+        amount=400,
+    )
+    for action in (
+        "approve",
+        "reject",
+        "flag",
+    ):
+        url: str = reverse(
+            f"loan-{action}",
+            args=[loan.pk],
+        )
+        response: Response = auth_client.post(
+            url,
+            {},
+            format="json",
+        )
         assert response.status_code == status.HTTP_403_FORBIDDEN
 
+
 @pytest.mark.django_db
-def test_admin_user_can_approve_flagged_loan(admin_client: APIClient, user: User) -> None:
+def test_admin_user_can_approve_flagged_loan(
+    admin_client: APIClient, user: User
+) -> None:
     """
     Verify that an admin can approve loans that have been flagged.
 
@@ -132,7 +203,10 @@ def test_admin_user_can_approve_flagged_loan(admin_client: APIClient, user: User
     Returns:
         None
     """
-    loan: LoanApplication = LoanApplication.objects.create(user=user, amount=500)
+    loan: LoanApplication = LoanApplication.objects.create(
+        user=user,
+        amount=500,
+    )
     loan.status = "FLAGGED"
     loan.save(update_fields=["status"])
     url: str = reverse("loan-approve", args=[loan.id])
@@ -140,8 +214,11 @@ def test_admin_user_can_approve_flagged_loan(admin_client: APIClient, user: User
     assert response.status_code == status.HTTP_200_OK
     assert response.data.get("status") == "APPROVED"
 
+
 @pytest.mark.django_db
-def test_admin_user_can_reject_flagged_loan(admin_client: APIClient, user: User) -> None:
+def test_admin_user_can_reject_flagged_loan(
+    admin_client: APIClient, user: User
+) -> None:
     """
     Verify that an admin can reject loans that have been flagged.
 
@@ -152,7 +229,10 @@ def test_admin_user_can_reject_flagged_loan(admin_client: APIClient, user: User)
     Returns:
         None
     """
-    loan: LoanApplication = LoanApplication.objects.create(user=user, amount=600)
+    loan: LoanApplication = LoanApplication.objects.create(
+        user=user,
+        amount=600,
+    )
     loan.status = "FLAGGED"
     loan.save(update_fields=["status"])
     url: str = reverse("loan-reject", args=[loan.id])
