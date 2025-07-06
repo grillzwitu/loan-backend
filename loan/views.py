@@ -48,8 +48,8 @@ class LoanApplicationListCreateView(generics.ListCreateAPIView):
         """
         user = self.request.user
         if user.is_staff:
-            return LoanApplication.objects.all()
-        return LoanApplication.objects.filter(user=user)
+            return LoanApplication.objects.all().order_by("id")
+        return LoanApplication.objects.filter(user=user).order_by("id")
 
 class LoanApplicationDetailView(generics.RetrieveAPIView):
     """

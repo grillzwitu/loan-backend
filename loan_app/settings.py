@@ -99,6 +99,8 @@ REST_FRAMEWORK = {
         "rest_framework.authentication.SessionAuthentication"
     ),
     "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
+    "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
+    "PAGE_SIZE": 10,
 }
 
 SIMPLE_JWT = {
@@ -120,7 +122,12 @@ SWAGGER_SETTINGS: Dict[str, Any] = {
             "in": "header"
         }
     }
+    
 }
+
+# Silence drf_yasg deprecation warning for changed renderer formats
+SWAGGER_USE_COMPAT_RENDERERS: bool = False
+
 # Logging configuration: formatters, handlers, and root logger settings
 LOGGING: Dict[str, Any] = {
     "version": 1,

@@ -53,7 +53,8 @@ def test_loan_endpoints(auth_client) -> None:
     list_url = reverse('loan-list-create')
     resp_list = auth_client.get(list_url, format='json')
     assert resp_list.status_code == status.HTTP_200_OK
-    assert resp_list.data == []
+    assert resp_list.data['results'] == []
+    assert resp_list.data['count'] == 0
 
     # Create and submit a loan
     create_data = {'amount': '500.00'}

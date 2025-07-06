@@ -33,6 +33,12 @@ class LoanApplication(models.Model):
     created_at: datetime.datetime = models.DateTimeField(auto_now_add=True)
     updated_at: datetime.datetime = models.DateTimeField(auto_now=True)
 
+    class Meta:
+        """
+        Default ordering for LoanApplication queries to prevent pagination warnings.
+        """
+        ordering: list[str] = ["id"]
+
     def withdraw(self) -> None:
         """
         Withdraw a pending LoanApplication, changing its status to WITHDRAWN.

@@ -36,7 +36,7 @@ def test_regular_user_list_loans(auth_client: APIClient, user: User) -> None:
     url: str = reverse("loan-list-create")
     response: Response = auth_client.get(url, format="json")
     assert response.status_code == status.HTTP_200_OK
-    ids: List[int] = [item["id"] for item in response.data]
+    ids: List[int] = [item["id"] for item in response.data["results"]]
     assert loan1.id in ids
     assert loan2.id not in ids
 
@@ -80,7 +80,7 @@ def test_admin_user_list_all_loans(admin_client: APIClient, user: User) -> None:
     url: str = reverse("loan-list-create")
     response: Response = admin_client.get(url, format="json")
     assert response.status_code == status.HTTP_200_OK
-    ids: List[int] = [item["id"] for item in response.data]
+    ids: List[int] = [item["id"] for item in response.data["results"]]
     assert loan1.id in ids
     assert loan2.id in ids
 

@@ -12,8 +12,9 @@ from loan.models import LoanApplication
 from .models import FraudFlag
 
 import logging
-from typing import List
 logger: logging.Logger = logging.getLogger(__name__)
+from typing import List
+from django.core.mail import send_mail
 
 User = get_user_model()
 
@@ -64,12 +65,20 @@ def run_fraud_checks(loan: LoanApplication) -> List[str]:
         )
     for reason in reasons:
         FraudFlag.objects.create(loan=loan, reason=reason)
-
+    
     # Update loan status based on fraud detection results
     if reasons:
         logger.info("Setting status FLAGGED for loan id=%s", loan.id)
         loan.status = "FLAGGED"
         loan.save(update_fields=["status"])
+        # Mock email notification to admin when a loan is flagged
+        send_mail(
+            subject=f"Loan {loan.id} Flagged",
+            message=f"Loan {loan.id} flagged for reasons: {', '.join(reasons)}",
+            from_email=None,
+            recipient_list=["admin@example.com"],
+            fail_silently=True,
+        )
     else:
         # Auto-approve loans with no fraud flags
         logger.info("Auto-approving loan id=%s with no fraud flags", loan.id)
