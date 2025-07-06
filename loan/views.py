@@ -42,17 +42,31 @@ class LoanApplicationListCreateView(generics.ListCreateAPIView):
 
     def get_queryset(self) -> QuerySet[LoanApplication]:
         """
-        Return the QuerySet of LoanApplication instances for the requesting user.
+        Return the QuerySet of LoanApplication instances.
+        Regular users: only their own loans.
+        Admin users: all loans.
         """
-        return LoanApplication.objects.filter(user=self.request.user)
+        user = self.request.user
+        if user.is_staff:
+            return LoanApplication.objects.all()
+        return LoanApplication.objects.filter(user=user)
 
 class LoanApplicationDetailView(generics.RetrieveAPIView):
     """
     Retrieve a specific LoanApplication by ID for authenticated users.
     """
     permission_classes = (IsAuthenticated,)
-    queryset = LoanApplication.objects.all()
     serializer_class = LoanApplicationSerializer
+
+    def get_queryset(self) -> QuerySet[LoanApplication]:
+        """
+        Restrict loans so regular users can only view their own loans,
+        while admin users can view all loans.
+        """
+        user = self.request.user
+        if user.is_staff:
+            return LoanApplication.objects.all()
+        return LoanApplication.objects.filter(user=user)
 
     def retrieve(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         """
