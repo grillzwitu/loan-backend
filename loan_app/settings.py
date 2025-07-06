@@ -93,16 +93,26 @@ else:
         }
     }
 
-# Cache configuration: Redis-backed cache via django-redis
-CACHES: Dict[str, Any] = {
-    "default": {
-        "BACKEND": "django_redis.cache.RedisCache",
-        "LOCATION": env("REDIS_URL", default="redis://redis:6379/0"),
-        "OPTIONS": {
-            "CLIENT_CLASS": "django_redis.client.DefaultClient",
-        },
+# Cache configuration: attempt Redis, fallback to local memory cache
+REDIS_URL: str | None = env("REDIS_URL", default=None)
+CACHES: Dict[str, Any]
+if REDIS_URL:
+    CACHES = {
+        "default": {
+            "BACKEND": "django_redis.cache.RedisCache",
+            "LOCATION": REDIS_URL,
+            "OPTIONS": {
+                "CLIENT_CLASS": "django_redis.client.DefaultClient",
+            },
+        }
     }
-}
+else:
+    CACHES = {
+        "default": {
+            "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+            "LOCATION": "locmem-default",
+        }
+    }
 
 STATIC_URL = "/static/"
 

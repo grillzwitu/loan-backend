@@ -17,6 +17,8 @@ Endpoints provided:
         Reject a pending or flagged loan application (admin)
   - POST  /api/loan/{id}/flag/
         Flag a pending loan application (admin)
+  - GET   /api/loan/dashboard/
+        Return counts of loans by status (dashboard)
 """
 
 from typing import List
@@ -30,6 +32,7 @@ from .views import (
     LoanApplicationListCreateView,
     LoanApplicationRejectView,
     LoanApplicationWithdrawView,
+    LoanDashboardView,
 )
 
 urlpatterns: List[URLPattern] = [
@@ -62,5 +65,10 @@ urlpatterns: List[URLPattern] = [
         "<int:pk>/flag/",
         LoanApplicationFlagView.as_view(),
         name="loan-flag",
+    ),
+    path(
+        "dashboard/",
+        LoanDashboardView.as_view(),
+        name="loan-dashboard",
     ),
 ]

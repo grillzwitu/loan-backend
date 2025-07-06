@@ -74,6 +74,8 @@ class LoanApplicationListCreateView(generics.ListCreateAPIView):
         loan.refresh_from_db()
         cache.delete("loan_list.all")
         cache.delete(f"loan_list.user_{request.user.pk}")
+        cache.delete(f"serializer_loan_{loan.pk}")
+        cache.delete(f"loan_detail_{loan.pk}")
         serializer = self.get_serializer(loan)
         headers = self.get_success_headers(serializer.data)
         return Response(
@@ -145,14 +147,26 @@ class LoanApplicationDetailView(generics.RetrieveAPIView):
         **kwargs: Any,
     ) -> Response:
         """
-        Handle GET request to retrieve a specific LoanApplication.
+        Handle GET request to retrieve a specific LoanApplication with caching.
         """
+        # Caching detail response
+        key = f"loan_detail_{kwargs.get('pk')}"
+        data = cache.get(key)
+        if data is not None:
+            return Response(data)
+        # Clear serializer cache to ensure fresh representation
+        cache.delete(f"serializer_loan_{kwargs.get('pk')}")
         logger.info(
             "Retrieving LoanApplication id=%s for user=%s",
             kwargs.get("pk"),
             request.user.username,
         )
-        return super().retrieve(request, *args, **kwargs)
+        response = super().retrieve(request, *args, **kwargs)
+        # Override status to ensure fresh DB value after cache miss
+        fresh_loan = LoanApplication.objects.get(pk=kwargs.get("pk"))
+        response.data["status"] = fresh_loan.status
+        cache.set(key, response.data, CACHE_TTL)
+        return response
 
 
 class LoanApplicationWithdrawView(APIView):
@@ -233,6 +247,7 @@ class LoanApplicationApproveView(APIView):
             )
         loan.status = "APPROVED"
         loan.save(update_fields=["status"])
+        cache.delete(f"serializer_loan_{loan.pk}")
         serializer = LoanApplicationSerializer(loan)
         return Response(
             serializer.data,
@@ -268,6 +283,7 @@ class LoanApplicationRejectView(APIView):
             )
         loan.status = "REJECTED"
         loan.save(update_fields=["status"])
+        cache.delete(f"serializer_loan_{loan.pk}")
         serializer = LoanApplicationSerializer(loan)
         return Response(
             serializer.data,
@@ -306,8 +322,42 @@ class LoanApplicationFlagView(APIView):
         FraudFlag.objects.create(loan=loan, reason=reason)
         loan.status = "FLAGGED"
         loan.save(update_fields=["status"])
+        cache.delete(f"serializer_loan_{loan.pk}")
         serializer = LoanApplicationSerializer(loan)
         return Response(
             serializer.data,
             status=status.HTTP_200_OK,
         )
+
+
+# Dashboard endpoint: counts by status with caching
+DASHBOARD_CACHE_TTL: int = 300  # Cache TTL in seconds for dashboard endpoint
+
+
+class LoanDashboardView(APIView):
+    """
+    Dashboard endpoint returning counts of loans by status.
+    """
+    permission_classes = (IsAuthenticated,)
+
+    def get(
+        self,
+        request: Request,
+        *args: Any,
+        **kwargs: Any,
+    ) -> Response:
+        """
+        Handle GET request for loan status dashboard counts.
+        """
+        cache_key = "loan_dashboard"
+        data = cache.get(cache_key)
+        if data is not None:
+            return Response(data)
+        # Build counts per status
+        statuses = [choice[0] for choice in LoanApplication.STATUS_CHOICES]
+        result: dict[str, int] = {}
+        for status_name in statuses:
+            count = LoanApplication.objects.filter(status=status_name).count()
+            result[status_name] = count
+        cache.set(cache_key, result, DASHBOARD_CACHE_TTL)
+        return Response(result)

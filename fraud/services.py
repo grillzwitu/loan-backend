@@ -48,12 +48,10 @@ def run_fraud_checks(loan: LoanApplication) -> List[str]:
         timezone.now() - datetime.timedelta(days=1)
     )
     cache_key_recent = f"fraud.recent_loans.user_{loan.user_id}"
-    recent_loan_count = cache.get(cache_key_recent)
-    if recent_loan_count is None:
-        recent_loan_count = LoanApplication.objects.filter(
-            user_id=loan.user_id, created_at__gte=one_day_ago
-        ).count()
-        cache.set(cache_key_recent, recent_loan_count, CACHE_TTL_5_MIN)
+    recent_loan_count = LoanApplication.objects.filter(
+        user_id=loan.user_id, created_at__gte=one_day_ago
+    ).count()
+    cache.set(cache_key_recent, recent_loan_count, CACHE_TTL_5_MIN)
     if recent_loan_count > 3:
         reasons.append("More than 3 loans in 24 hours")
 

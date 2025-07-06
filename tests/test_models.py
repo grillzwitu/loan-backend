@@ -1,15 +1,14 @@
 import pytest
 from typing import Any
 from django.contrib.auth import get_user_model
-from django.db.models.signals import post_save
 
 from fraud.models import FraudFlag
-from fraud.signals import loan_post_save
+# Removed signal handler import due to disabled signals in fraud app
 from loan.models import LoanApplication
 
 # Disable post_save fraud checks for LoanApplication
 # so withdraw logic can be tested
-post_save.disconnect(receiver=loan_post_save, sender=LoanApplication)
+# Signal disconnection not required; fraud checks occur in API views
 
 User: Any = get_user_model()
 

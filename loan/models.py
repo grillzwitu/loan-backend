@@ -4,6 +4,7 @@ Module: Defines the LoanApplication model representing user loan requests.
 
 
 from django.conf import settings
+from typing import Any
 from django.db import models
 
 
@@ -66,8 +67,9 @@ class LoanApplication(models.Model):
     def __str__(self) -> str:
         """
         Return a string representation of the LoanApplication instance.
-
+    
         Returns:
             str: Formatted string containing loan id and user.
         """
         return f"Loan {self.id} - {self.user}"
+

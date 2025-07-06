@@ -9,6 +9,9 @@ from typing import Any, Dict, Tuple, Type
 from rest_framework import serializers
 
 from .models import LoanApplication
+from django.core.cache import cache
+
+SERIALIZER_CACHE_TTL: int = 300  # Cache TTL for serializer outputs
 
 logger: logging.Logger = logging.getLogger(__name__)
 
@@ -43,6 +46,18 @@ class LoanApplicationSerializer(serializers.ModelSerializer):
             "created_at",
             "updated_at",
         )
+
+    def to_representation(self, instance: LoanApplication) -> Dict[str, Any]:
+        """
+        Cache serialized output for LoanApplication instances.
+        """
+        cache_key = f"serializer_loan_{instance.pk}"
+        data = cache.get(cache_key)
+        if data is not None:
+            return data
+        data = super().to_representation(instance)
+        cache.set(cache_key, data, SERIALIZER_CACHE_TTL)
+        return data
 
     def create(self, validated_data: Dict[str, Any]) -> LoanApplication:
         """
