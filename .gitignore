@@ -28,3 +28,7 @@ venv/
 postgres_data/
 *.sqlite3
 db.sqlite3
+
+
+# Custom directories
+docs/
