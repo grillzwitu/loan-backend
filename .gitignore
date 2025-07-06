@@ -1,6 +1,8 @@
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
+.pytest_cache/
+.mypy_cache/
 
 # Distribution / packaging
 *.egg
@@ -24,3 +26,4 @@ venv/
 # Logs and databases
 *.log
 postgres_data/
+*.sqlite3
