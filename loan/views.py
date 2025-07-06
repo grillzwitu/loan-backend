@@ -1,5 +1,5 @@
 """
-Module: API views for the loan app, handling LoanApplication endpoints (list, create, retrieve, withdraw).
+Module: API views for the loan app, handling LoanApplication endpoints (list, create, retrieve, withdraw, approve, reject, flag).
 """
 import logging
 from decimal import Decimal
@@ -7,7 +7,7 @@ from typing import Any
 from django.db.models.query import QuerySet
 from django.shortcuts import get_object_or_404
 from rest_framework import generics, status
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -15,6 +15,7 @@ from rest_framework.views import APIView
 from .models import LoanApplication
 from .serializers import LoanApplicationSerializer
 from fraud.services import run_fraud_checks
+from fraud.models import FraudFlag
 
 logger: logging.Logger = logging.getLogger(__name__)
 
@@ -82,3 +83,55 @@ class LoanApplicationWithdrawView(APIView):
             return Response({'detail': str(e)}, status=status.HTTP_400_BAD_REQUEST)
         logger.info("User %s successfully withdrew loan id=%s", request.user.username, pk)
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+# Admin endpoints for loan approval, rejection, and manual flagging
+
+class LoanApplicationApproveView(APIView):
+    """
+    Allow admin users to approve a pending or flagged LoanApplication.
+    """
+    permission_classes = (IsAdminUser,)
+
+    def post(self, request: Request, pk: int, *args: Any, **kwargs: Any) -> Response:
+        loan = get_object_or_404(LoanApplication, pk=pk)
+        logger.info("Admin %s approving loan id=%s", request.user.username, pk)
+        if loan.status not in ("PENDING", "FLAGGED"):
+            return Response({'detail': 'Only pending or flagged loans can be approved'}, status=status.HTTP_400_BAD_REQUEST)
+        loan.status = "APPROVED"
+        loan.save(update_fields=["status"])
+        serializer = LoanApplicationSerializer(loan)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+class LoanApplicationRejectView(APIView):
+    """
+    Allow admin users to reject a pending or flagged LoanApplication.
+    """
+    permission_classes = (IsAdminUser,)
+
+    def post(self, request: Request, pk: int, *args: Any, **kwargs: Any) -> Response:
+        loan = get_object_or_404(LoanApplication, pk=pk)
+        logger.info("Admin %s rejecting loan id=%s", request.user.username, pk)
+        if loan.status not in ("PENDING", "FLAGGED"):
+            return Response({'detail': 'Only pending or flagged loans can be rejected'}, status=status.HTTP_400_BAD_REQUEST)
+        loan.status = "REJECTED"
+        loan.save(update_fields=["status"])
+        serializer = LoanApplicationSerializer(loan)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+class LoanApplicationFlagView(APIView):
+    """
+    Allow admin users to manually flag a pending LoanApplication.
+    """
+    permission_classes = (IsAdminUser,)
+
+    def post(self, request: Request, pk: int, *args: Any, **kwargs: Any) -> Response:
+        loan = get_object_or_404(LoanApplication, pk=pk)
+        reason = request.data.get("reason", "Manually flagged by admin")
+        logger.info("Admin %s manually flagging loan id=%s for reason: %s", request.user.username, pk, reason)
+        if loan.status != "PENDING":
+            return Response({'detail': 'Only pending loans can be flagged'}, status=status.HTTP_400_BAD_REQUEST)
+        FraudFlag.objects.create(loan=loan, reason=reason)
+        loan.status = "FLAGGED"
+        loan.save(update_fields=["status"])
+        serializer = LoanApplicationSerializer(loan)
+        return Response(serializer.data, status=status.HTTP_200_OK)
