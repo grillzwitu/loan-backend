@@ -12,12 +12,11 @@ from typing import Any, Dict
 import environ  # type: ignore[import-untyped]
 
 env: environ.Env = environ.Env(DEBUG=(bool, False))
-env.read_env()
-
 BASE_DIR: Path = Path(__file__).resolve().parent.parent
+env.read_env(env_file=str(BASE_DIR / ".env"))
 SECRET_KEY: str = env("SECRET_KEY", default="unsafe-default-key")
 DEBUG: bool = env("DEBUG")
-ALLOWED_HOSTS: list[str] = env.list("CORS_ALLOWED_ORIGINS", default=[])
+ALLOWED_HOSTS: list[str] = env.list("CORS_ALLOWED_ORIGINS", default=[]) + ["127.0.0.1", "localhost"]
 
 # List of Django core, third-party, and local apps registered with this project
 INSTALLED_APPS: list[str] = [
@@ -103,6 +102,7 @@ if REDIS_URL:
             "LOCATION": REDIS_URL,
             "OPTIONS": {
                 "CLIENT_CLASS": "django_redis.client.DefaultClient",
+                "IGNORE_EXCEPTIONS": True,
             },
         }
     }

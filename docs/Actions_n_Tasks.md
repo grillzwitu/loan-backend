@@ -100,11 +100,11 @@ Includes Django, DRF, Redis, PostgreSQL, and dev tooling. Auth uses **token-base
 
 Ensure your `README.md` includes:
 
-- ✅ Project summary
-- ✅ Setup steps with Docker
+- ✅ Project summary containing devlopment stack, file structure, api endpoints
+- ✅ Setup steps locally or with Docker
 - ✅ How to access app (`http://localhost:8000`)
 - ✅ Example `.env` config
-- ✅ Test instructions
+- ✅ Test instructions and description
 - ✅ API documentation (e.g. Swagger URL)
 - ✅ Auth guide (token + refresh usage)
 

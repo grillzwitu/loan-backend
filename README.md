@@ -89,5 +89,39 @@ poetry run pytest --maxfail=1 --disable-warnings -q
 ## CI/CD
 Tests, linting, and type checks run via GitHub Actions in `.github/workflows/ci.yml`.
 
+## Troubleshooting
+
+### ALLOWED_HOSTS / DEBUG
+
+If you see errors like `CommandError: You must set settings.ALLOWED_HOSTS if DEBUG is False` or `Invalid HTTP_HOST header`, ensure:
+
+- DEBUG=True in your `.env`, or
+- Add your host to `CORS_ALLOWED_ORIGINS` (e.g. `CORS_ALLOWED_ORIGINS=http://127.0.0.1:8000`), or
+- Explicitly set `ALLOWED_HOSTS` in `.env` (e.g. `ALLOWED_HOSTS=127.0.0.1,localhost`).
+
+### Missing database tables
+
+If you encounter `no such table: loan_loanapplication` or similar, run:
+
+```bash
+poetry run python manage.py makemigrations
+poetry run python manage.py migrate --run-syncdb
+```
+
+### Redis connection issues
+
+If you see `Error -3 connecting to redis`, caching will fallback to in-memory. Ensure your `REDIS_URL` is correct in `.env`. The cache is configured with `IGNORE_EXCEPTIONS=True` to prevent application failure.
+
+### .env loading & virtual environment
+
+Always run management commands from the project root so `.env` is loaded:
+
+```bash
+cp .env.example .env
+source .venv/bin/activate  # if using venv
+poetry install
+poetry run python manage.py runserver
+```
+
 ## License
 MIT License
