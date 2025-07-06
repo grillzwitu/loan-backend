@@ -97,8 +97,15 @@ def run_fraud_checks(loan: LoanApplication) -> List[str]:
             recipient_list=["admin@example.com"],
             fail_silently=True,
         )
+    elif loan.amount > 1000000:
+        # Loan amount exceeds review threshold, keep pending for admin review
+        logger.info(
+            "Loan id=%s pending review by admin (amount > %s)",
+            loan.id,
+            1000000,
+        )
     else:
-        # Auto-approve loans with no fraud flags
+        # Auto-approve loans with no fraud flags and amount <= review threshold
         logger.info(
             "Auto-approving loan id=%s with no fraud flags", loan.id
         )

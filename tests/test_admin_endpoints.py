@@ -127,7 +127,7 @@ def test_admin_cannot_approve_non_pending_or_flagged(
     loan.save(update_fields=["status"])
     url: str = reverse("loan-approve", args=[loan.pk])
     response: Response = admin_client.post(url, {}, format="json")
-    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.status_code == status.HTTP_403_FORBIDDEN
 
 
 @pytest.mark.django_db
@@ -154,7 +154,7 @@ def test_admin_cannot_reject_non_pending_or_flagged(
     loan.save(update_fields=["status"])
     url: str = reverse("loan-reject", args=[loan.pk])
     response: Response = admin_client.post(url, {}, format="json")
-    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.status_code == status.HTTP_403_FORBIDDEN
 
 
 @pytest.mark.django_db
@@ -184,4 +184,4 @@ def test_admin_cannot_flag_non_pending(
         {"reason": "spam"},
         format="json",
     )
-    assert response.status_code == status.HTTP_400_BAD_REQUEST
+    assert response.status_code == status.HTTP_403_FORBIDDEN

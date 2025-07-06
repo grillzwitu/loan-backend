@@ -188,7 +188,9 @@ class LoanApplicationWithdrawView(APIView):
         """
         Handle POST request to withdraw a pending loan.
         """
-        loan = get_object_or_404(LoanApplication, pk=pk, user=request.user)
+        loan = get_object_or_404(LoanApplication, pk=pk)
+        if request.user != loan.user:
+            return Response(status=status.HTTP_403_FORBIDDEN)
         logger.info(
             "User %s attempting to withdraw loan id=%s",
             request.user.username,
@@ -244,7 +246,7 @@ class LoanApplicationApproveView(APIView):
         if loan.status not in ("PENDING", "FLAGGED"):
             return Response(
                 {"detail": "Only pending or flagged loans can be approved"},
-                status=status.HTTP_400_BAD_REQUEST,
+                status=status.HTTP_403_FORBIDDEN,
             )
         loan.status = "APPROVED"
         loan.save(update_fields=["status"])
@@ -280,7 +282,7 @@ class LoanApplicationRejectView(APIView):
         if loan.status not in ("PENDING", "FLAGGED"):
             return Response(
                 {"detail": "Only pending or flagged loans can be rejected"},
-                status=status.HTTP_400_BAD_REQUEST,
+                status=status.HTTP_403_FORBIDDEN,
             )
         loan.status = "REJECTED"
         loan.save(update_fields=["status"])
@@ -318,7 +320,7 @@ class LoanApplicationFlagView(APIView):
         if loan.status != "PENDING":
             return Response(
                 {"detail": "Only pending loans can be flagged"},
-                status=status.HTTP_400_BAD_REQUEST,
+                status=status.HTTP_403_FORBIDDEN,
             )
         FraudFlag.objects.create(loan=loan, reason=reason)
         loan.status = "FLAGGED"
