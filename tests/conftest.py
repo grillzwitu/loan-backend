@@ -3,8 +3,16 @@ from typing import Any
 
 from django.contrib.auth import get_user_model
 from rest_framework.test import APIClient
+from django.core.cache import cache
+
 
 User = get_user_model()
+
+
+@pytest.fixture(autouse=True)
+def clear_cache():
+    """Clear Django cache before each test to isolate caching behavior."""
+    cache.clear()
 
 
 @pytest.fixture
