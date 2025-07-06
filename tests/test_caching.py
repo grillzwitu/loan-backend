@@ -32,18 +32,18 @@ def test_loan_detail_caching(auth_client: Any, user: Any) -> None:
         3. Fetch detail endpoint again to verify stale cached response.
         4. Clear cache and fetch detail endpoint to verify updated data.
     """
-    # Step 1: Create loan application and fetch detail endpoint to populate cache
+    # Step 1: Create and fetch loan detail to populate cache
     loan = LoanApplication.objects.create(user=user, amount=1000)
     url = reverse("loan-detail", args=(loan.pk,))
     response1 = auth_client.get(url, format="json")
     assert response1.status_code == 200
     data1 = response1.data
-    # Step 2: Update loan status directly in database
+    # Step 2: Update loan status in database
     LoanApplication.objects.filter(pk=loan.pk).update(status="WITHDRAWN")
-    # Step 3: Re-fetch loan detail endpoint to confirm stale cached response
+    # Step 3: Re-fetch loan detail to confirm stale cache
     response2 = auth_client.get(url, format="json")
     assert response2.data == data1
-    # Step 4: Clear cache and fetch loan detail endpoint to verify updated status
+    # Step 4: Clear cache and fetch detail to verify status
     cache_key = f"loan_detail_{loan.pk}"
     cache.delete(cache_key)
     response3 = auth_client.get(url, format="json")
@@ -66,7 +66,7 @@ def test_flagged_list_caching(admin_client: Any, user: Any) -> None:
         4. Fetch flagged list endpoint again to confirm cached data.
         5. Clear cache and fetch to verify inclusion of new flagged loan.
     """
-    # Step 1: Create and flag initial loan to populate flagged loans cache
+    # Step 1: Create and flag initial loan to populate flagged list
     loan1 = LoanApplication.objects.create(user=user, amount=6000000)
     run_fraud_checks(loan1)
     url = reverse("flagged-loans")
@@ -76,10 +76,10 @@ def test_flagged_list_caching(admin_client: Any, user: Any) -> None:
     # Step 2: Create and flag a second loan
     loan2 = LoanApplication.objects.create(user=user, amount=6000000)
     run_fraud_checks(loan2)
-    # Step 3: Re-fetch flagged loans endpoint to confirm cached stale results
+    # Step 3: Re-fetch flagged list to confirm stale cache
     response2 = admin_client.get(url, format="json")
     assert response2.data == data1
-    # Step 4: Clear flagged loans cache and fetch endpoint to verify inclusion of new flagged loan
+    # Step 4: Clear cache and fetch flagged list to verify new loan
     cache_key = "flagged_loans_page_1"
     cache.delete(cache_key)
     response3 = admin_client.get(url, format="json")
@@ -109,12 +109,12 @@ def test_loan_list_caching(auth_client: Any, user: Any) -> None:
     response1 = auth_client.get(url, format="json")
     assert response1.status_code == 200
     data1 = response1.data
-    # Step 2: Create another loan application for the user
+    # Step 2: Create another loan
     LoanApplication.objects.create(user=user, amount=2000)
-    # Step 3: Re-fetch loan list endpoint to confirm stale cached results
+    # Step 3: Re-fetch loan list to confirm stale cache
     response2 = auth_client.get(url, format="json")
     assert response2.data == data1
-    # Step 4: Clear loan list cache and fetch endpoint to verify new loan appears
+    # Step 4: Clear cache and fetch loan list to verify new loan
     cache_key = f"loan_list.user_{user.pk}"
     cache.delete(cache_key)
     response3 = auth_client.get(url, format="json")
@@ -137,7 +137,7 @@ def test_loan_dashboard_caching(auth_client: Any, user: Any) -> None:
         4. Fetch again to confirm stale cached counts.
         5. Clear cache and fetch to verify updated counts.
     """
-    # Step 1: Create one loan application for each status to set initial dashboard counts
+    # Step 1: Create one loan per status
     statuses = [choice[0] for choice in LoanApplication.STATUS_CHOICES]
     for status in statuses:
         LoanApplication.objects.create(user=user, amount=1000, status=status)
@@ -145,12 +145,12 @@ def test_loan_dashboard_caching(auth_client: Any, user: Any) -> None:
     response1 = auth_client.get(url, format="json")
     assert response1.status_code == 200
     data1 = response1.data
-    # Step 2: Create an additional PENDING loan to modify dashboard data
+    # Step 2: Create an additional PENDING loan
     LoanApplication.objects.create(user=user, amount=2000)
-    # Step 3: Re-fetch dashboard endpoint to confirm stale cached counts
+    # Step 3: Re-fetch dashboard to confirm stale cache
     response2 = auth_client.get(url, format="json")
     assert response2.data == data1
-    # Step 4: Clear dashboard cache and fetch endpoint to verify updated counts
+    # Step 4: Clear cache and fetch dashboard to verify counts
     cache.delete("loan_dashboard")
     response3 = auth_client.get(url, format="json")
     assert response3.data["PENDING"] == data1["PENDING"] + 1
@@ -167,26 +167,26 @@ def test_serializer_caching(user: Any) -> None:
     Procedure:
         1. Create a loan and clear serializer cache.
         2. Serialize instance to populate cache and record data.
-        3. Update loan amount in database and serialize again to verify stale data.
+        3. Update loan amount and serialize again to verify stale data.
         4. Clear cache and serialize to verify updated data is returned.
     """
     from loan.serializers import LoanApplicationSerializer
-    # Step 1: Create loan instance and prepare for serializer caching test
+    # Step 1: Create loan instance
     loan = LoanApplication.objects.create(user=user, amount=1234)
-    # Step 2: Build serializer cache key and clear existing cache
+    # Step 2: Clear serializer cache
     cache_key = f"serializer_loan_{loan.pk}"
     cache.delete(cache_key)
-    # Step 3: Serialize loan instance to populate cache and capture serialized output
+    # Step 3: Serialize loan to populate cache
     serializer1 = LoanApplicationSerializer(loan)
     data1 = serializer1.data
-    # Step 4: Update loan amount in database to simulate external modification and confirm cache returns stale data
+    # Step 4: Update loan amount to test stale cache
     LoanApplication.objects.filter(pk=loan.pk).update(amount=4321)
     serializer2 = LoanApplicationSerializer(
         LoanApplication.objects.get(pk=loan.pk)
     )
     data2 = serializer2.data
     assert data2 == data1
-    # Step 5: Clear serializer cache and re-serialize to verify updated data is returned
+    # Step 5: Clear cache and re-serialize to verify updated data
     cache.delete(cache_key)
     serializer3 = LoanApplicationSerializer(
         LoanApplication.objects.get(pk=loan.pk)

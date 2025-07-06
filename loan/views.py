@@ -150,20 +150,21 @@ class LoanApplicationDetailView(generics.RetrieveAPIView):
         Handle GET request to retrieve a specific LoanApplication with caching.
         """
         # Caching detail response
-        key = f"loan_detail_{kwargs.get('pk')}"
+        pk = cast(int, kwargs.get("pk"))
+        key = f"loan_detail_{pk}"
         data = cache.get(key)
         if data is not None:
             return Response(data)
         # Clear serializer cache to ensure fresh representation
-        cache.delete(f"serializer_loan_{kwargs.get('pk')}")
+        cache.delete(f"serializer_loan_{pk}")
         logger.info(
             "Retrieving LoanApplication id=%s for user=%s",
-            kwargs.get("pk"),
+            pk,
             request.user.username,
         )
         response = super().retrieve(request, *args, **kwargs)
         # Override status to ensure fresh DB value after cache miss
-        fresh_loan = LoanApplication.objects.get(pk=kwargs.get("pk"))
+        fresh_loan = LoanApplication.objects.get(pk=pk)
         response.data["status"] = fresh_loan.status
         cache.set(key, response.data, CACHE_TTL)
         return response
