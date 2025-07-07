@@ -25,15 +25,10 @@ from typing import List
 
 from django.urls import URLPattern, path
 
-from .views import (
-    LoanApplicationApproveView,
-    LoanApplicationDetailView,
-    LoanApplicationFlagView,
-    LoanApplicationListCreateView,
-    LoanApplicationRejectView,
-    LoanApplicationWithdrawView,
-    LoanDashboardView,
-)
+from .views import (LoanApplicationApproveView, LoanApplicationDetailView,
+                    LoanApplicationFlagView, LoanApplicationListCreateView,
+                    LoanApplicationRejectView, LoanApplicationWithdrawView,
+                    LoanDashboardView)
 
 urlpatterns: List[URLPattern] = [
     path(

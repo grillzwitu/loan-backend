@@ -6,10 +6,10 @@ deserialization of LoanApplication objects.
 import logging
 from typing import Any, Dict, Tuple, Type
 
+from django.core.cache import cache
 from rest_framework import serializers
 
 from .models import LoanApplication
-from django.core.cache import cache
 
 SERIALIZER_CACHE_TTL: int = 300  # Cache TTL for serializer outputs
 
@@ -25,8 +25,8 @@ class LoanApplicationSerializer(serializers.ModelSerializer):
             the loan applicant.
     """
 
-    user: serializers.PrimaryKeyRelatedField = (
-        serializers.PrimaryKeyRelatedField(read_only=True)
+    user: serializers.PrimaryKeyRelatedField = serializers.PrimaryKeyRelatedField(
+        read_only=True
     )
 
     class Meta:
@@ -35,6 +35,7 @@ class LoanApplicationSerializer(serializers.ModelSerializer):
             "id",
             "user",
             "amount",
+            "purpose",
             "status",
             "created_at",
             "updated_at",

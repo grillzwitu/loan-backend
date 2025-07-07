@@ -2,7 +2,6 @@
 Module: Defines the LoanApplication model representing user loan requests.
 """
 
-
 from django.conf import settings
 from django.db import models
 
@@ -42,6 +41,12 @@ class LoanApplication(models.Model):
     )
     created_at: models.DateTimeField = models.DateTimeField(auto_now_add=True)
     updated_at: models.DateTimeField = models.DateTimeField(auto_now=True)
+    purpose: models.CharField = models.CharField(
+        max_length=255,
+        blank=True,
+        default="",
+        help_text="Purpose for applying for the loan",
+    )
 
     class Meta:
         """
@@ -53,13 +58,13 @@ class LoanApplication(models.Model):
 
     def withdraw(self) -> None:
         """
-        Withdraw a pending LoanApplication, changing its status to WITHDRAWN.
+        Withdraw a pending or flagged LoanApplication, changing its status to WITHDRAWN.
 
         Raises:
-            ValueError: If the loan is not in PENDING status.
+            ValueError: If the loan is not in PENDING or FLAGGED status.
         """
-        if self.status != "PENDING":
-            raise ValueError("Only pending loans can be withdrawn")
+        if self.status not in ("PENDING", "FLAGGED"):
+            raise ValueError("Only pending or flagged loans can be withdrawn")
         self.status = "WITHDRAWN"
         self.save(update_fields=["status"])
 

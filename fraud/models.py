@@ -20,6 +20,7 @@ class FraudFlag(models.Model):
     Methods:
         __str__: Returns formatted string representation.
     """
+
     id: int
 
     loan: models.ForeignKey = models.ForeignKey(

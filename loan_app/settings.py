@@ -6,6 +6,7 @@ authentication, Swagger, CORS, and logging for the Loan Backend service.
 """
 
 import datetime
+import os
 import sys
 from pathlib import Path
 from typing import Any, Dict
@@ -17,10 +18,11 @@ import environ  # type: ignore[import-untyped]
 # ------------------------------------------------------------------------------
 env: environ.Env = environ.Env(DEBUG=(bool, False))
 BASE_DIR: Path = Path(__file__).resolve().parent.parent
-# Read .env from project root
-env.read_env(env_file=str(BASE_DIR / ".env"))
 # Detect test environment via pytest invocation
 TESTING: bool = any("pytest" in arg for arg in sys.argv)
+# Load .env file only when not testing
+if not TESTING:
+    env.read_env(env_file=str(BASE_DIR / ".env"))
 
 # ------------------------------------------------------------------------------
 # Security settings
@@ -30,10 +32,12 @@ SECRET_KEY: str = env("SECRET_KEY", default="unsafe-default-key")
 # DEBUG: Toggle debug mode (use False in production)
 DEBUG: bool = env("DEBUG")
 # ALLOWED_HOSTS: Hosts allowed to serve this application when DEBUG=False
-ALLOWED_HOSTS: list[str] = (
-    env.list("ALLOWED_HOSTS", default=[])  # from .env or environment variables
-    + ["127.0.0.1", "localhost"]
-)
+ALLOWED_HOSTS: list[str] = env.list(
+    "ALLOWED_HOSTS", default=[]
+) + [  # from .env or environment variables
+    "127.0.0.1",
+    "localhost",
+]
 
 # ------------------------------------------------------------------------------
 # Application definition
@@ -63,6 +67,7 @@ INSTALLED_APPS: list[str] = [
 MIDDLEWARE: list[str] = [
     # Security and session management
     "django.middleware.security.SecurityMiddleware",
+    *([] if TESTING else ["whitenoise.middleware.WhiteNoiseMiddleware"]),
     "django.contrib.sessions.middleware.SessionMiddleware",
     # CORS handling
     "corsheaders.middleware.CorsMiddleware",
@@ -111,9 +116,9 @@ WSGI_APPLICATION: str = "loan_app.wsgi.application"
 # Database configuration
 # ------------------------------------------------------------------------------
 # Default: SQLite for local development; set USE_SQLITE=False for PostgreSQL
+# Database configuration
 DATABASES: Dict[str, Any]
-
-if env.bool("USE_SQLITE", default=True):
+if os.getenv("USE_SQLITE", "True").lower() in ("true", "1", "yes"):
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.sqlite3",
@@ -121,6 +126,7 @@ if env.bool("USE_SQLITE", default=True):
         }
     }
 else:
+    # PostgreSQL configuration
     DATABASES = {
         "default": {
             "ENGINE": "django.db.backends.postgresql",
@@ -155,9 +161,7 @@ elif REDIS_URL:
             "LOCATION": REDIS_URL,
             "OPTIONS": {
                 # Prevent Redis errors from crashing app
-                "CLIENT_CLASS": (
-                    "django_redis.client.DefaultClient"
-                ),
+                "CLIENT_CLASS": ("django_redis.client.DefaultClient"),
                 "IGNORE_EXCEPTIONS": True,
             },
         }
@@ -182,6 +186,8 @@ if TESTING:
 # Static files (CSS, JavaScript, Images)
 # ------------------------------------------------------------------------------
 STATIC_URL: str = "/static/"
+STATIC_ROOT: Path = BASE_DIR / "staticfiles"
+STATICFILES_STORAGE: str = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 # ------------------------------------------------------------------------------
 # Django REST Framework configuration
@@ -191,12 +197,8 @@ REST_FRAMEWORK: Dict[str, Any] = {
         "rest_framework_simplejwt.authentication.JWTAuthentication",
         "rest_framework.authentication.SessionAuthentication",
     ),
-    "DEFAULT_PERMISSION_CLASSES": (
-        "rest_framework.permissions.IsAuthenticated",
-    ),
-    "DEFAULT_PAGINATION_CLASS": (
-        "rest_framework.pagination.PageNumberPagination"
-    ),
+    "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
+    "DEFAULT_PAGINATION_CLASS": ("rest_framework.pagination.PageNumberPagination"),
     "PAGE_SIZE": 10,
 }
 

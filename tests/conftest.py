@@ -1,10 +1,28 @@
-import pytest
+"""
+conftest.py: Global pytest configuration and fixtures.
+
+This module defines fixtures automatically applied to all tests under the `tests/` directory.
+It must reside at the top-level `tests/` directory so that pytest will auto-discover these fixtures (cache clearing,
+APIClient instances, user and admin setup) across the entire test suite without requiring explicit imports.
+
+Available fixtures:
+- clear_cache (autouse): Clears Django cache before each test, isolating caching behavior.
+- api_client: Provides DRF APIClient for making HTTP requests in unit and integration tests.
+- auth_client: Provides authenticated APIClient with a JWT token for the default user fixture.
+- user: Creates a default test user for authentication-related tests.
+- admin_user: Creates a superuser for admin-level tests.
+- admin_client: Provides authenticated APIClient for a superuser to test privileged endpoints.
+
+Keeping configuration here promotes reusability, reduces duplication, and ensures consistent test setup
+across all modules without manual imports or boilerplate code.
+"""
+
 from typing import Any
 
+import pytest
 from django.contrib.auth import get_user_model
-from rest_framework.test import APIClient
 from django.core.cache import cache
-
+from rest_framework.test import APIClient
 
 User = get_user_model()
 

@@ -30,12 +30,7 @@ class RegisterView(generics.CreateAPIView):
     permission_classes = (AllowAny,)
     serializer_class = RegisterSerializer
 
-    def create(
-        self,
-        request: Request,
-        *args: Any,
-        **kwargs: Any
-    ) -> Response:
+    def create(self, request: Request, *args: Any, **kwargs: Any) -> Response:
         """
         Handle POST request for user registration and JWT issuance.
 
@@ -51,9 +46,7 @@ class RegisterView(generics.CreateAPIView):
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
         refresh = RefreshToken.for_user(user)
-        logger.info(
-            "Issued JWT refresh and access tokens for user: %s", user.username
-        )
+        logger.info("Issued JWT refresh and access tokens for user: %s", user.username)
         data = {
             "user": UserSerializer(user).data,
             "refresh": str(refresh),

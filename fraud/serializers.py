@@ -28,9 +28,7 @@ class FlaggedLoanSerializer(serializers.ModelSerializer):
     Serializer for LoanApplication instances including nested fraud flags.
     """
 
-    fraud_flags = FraudFlagSerializer(
-        many=True, read_only=True
-    )
+    fraud_flags = FraudFlagSerializer(many=True, read_only=True)
 
     class Meta:
         model = LoanApplication

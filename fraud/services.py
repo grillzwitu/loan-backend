@@ -10,13 +10,13 @@ import logging
 from typing import List
 
 from django.contrib.auth import get_user_model
+from django.core.cache import cache
 from django.core.mail import send_mail
 from django.utils import timezone
-from django.core.cache import cache
 
 from loan.models import LoanApplication
-from .models import FraudFlag
 
+from .models import FraudFlag
 
 CACHE_TTL_5_MIN: int = 300  # Cache TTL for 5 minutes
 logger: logging.Logger = logging.getLogger(__name__)
@@ -44,9 +44,7 @@ def run_fraud_checks(loan: LoanApplication) -> List[str]:
     reasons: List[str] = []
 
     # Rule: more than 3 loans in the past 24 hours
-    one_day_ago: datetime.datetime = (
-        timezone.now() - datetime.timedelta(days=1)
-    )
+    one_day_ago: datetime.datetime = timezone.now() - datetime.timedelta(days=1)
     cache_key_recent = f"fraud.recent_loans.user_{loan.user_id}"
     recent_loan_count = LoanApplication.objects.filter(
         user_id=loan.user_id, created_at__gte=one_day_ago
@@ -65,9 +63,7 @@ def run_fraud_checks(loan: LoanApplication) -> List[str]:
     domain_user_count = cache.get(cache_key_domain)
     if domain_user_count is None:
         domain_user_count = (
-            User.objects.filter(email__iendswith=domain)
-            .distinct()
-            .count()
+            User.objects.filter(email__iendswith=domain).distinct().count()
         )
         cache.set(cache_key_domain, domain_user_count, CACHE_TTL_5_MIN)
     if domain_user_count > 10:
@@ -75,9 +71,7 @@ def run_fraud_checks(loan: LoanApplication) -> List[str]:
 
     # Persist flags
     if reasons:
-        logger.warning(
-            "Loan id=%s flagged for reasons: %s", loan.id, reasons
-        )
+        logger.warning("Loan id=%s flagged for reasons: %s", loan.id, reasons)
     for reason in reasons:
         FraudFlag.objects.create(loan=loan, reason=reason)
 
@@ -89,10 +83,7 @@ def run_fraud_checks(loan: LoanApplication) -> List[str]:
         # Mock email notification to admin when a loan is flagged
         send_mail(
             subject=f"Loan {loan.id} Flagged",
-            message=(
-                f"Loan {loan.id} flagged for reasons: "
-                f"{', '.join(reasons)}"
-            ),
+            message=(f"Loan {loan.id} flagged for reasons: " f"{', '.join(reasons)}"),
             from_email=None,
             recipient_list=["admin@example.com"],
             fail_silently=True,
@@ -106,9 +97,7 @@ def run_fraud_checks(loan: LoanApplication) -> List[str]:
         )
     else:
         # Auto-approve loans with no fraud flags and amount <= review threshold
-        logger.info(
-            "Auto-approving loan id=%s with no fraud flags", loan.id
-        )
+        logger.info("Auto-approving loan id=%s with no fraud flags", loan.id)
         loan.status = "APPROVED"
         loan.save(update_fields=["status"])
 

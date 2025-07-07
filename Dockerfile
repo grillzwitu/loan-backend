@@ -12,13 +12,13 @@ ENV PYTHONDONTWRITEBYTECODE 1
 ENV PYTHONUNBUFFERED 1
 
 # Copy dependency definitions for Poetry
-COPY pyproject.toml poetry.lock* /app/
+COPY pyproject.toml poetry.lock* README.md /app/
 
 # Install Poetry and project dependencies (without dev dependencies)
 RUN pip install --upgrade pip && \
     pip install poetry && \
     poetry config virtualenvs.create false --local && \
-    poetry install --no-dev
+    poetry install --only main --no-interaction --no-ansi --no-root
 
 # Copy application source code into the container
 COPY . /app

@@ -22,6 +22,8 @@
 - Redis caching ([`django-redis`](https://pypi.org/project/django-redis/)) with locmem fallback
 - PostgreSQL adapter ([`psycopg2`](https://pypi.org/project/psycopg2/)) and SQLite
 - 12-factor configuration ([`django-environ`](https://pypi.org/project/django-environ/))
+- Gunicorn WSGI HTTP server ([`gunicorn`](https://pypi.org/project/gunicorn/))  
+- WhiteNoise static file serving ([`whitenoise`](https://pypi.org/project/whitenoise/))
 
 ### Development Dependencies
 - pytest, pytest-django
@@ -58,10 +60,11 @@
 │   ├── serializers.py
 │   └── services.py
 ├── tests/
-│   ├── test_api.py
-│   ├── test_services.py
-│   ├── test_admin_endpoints.py
-│   └── ...
+│   ├── unit/           # Unit tests (models, services, settings, caching, logging, permission, fraud)
+│   │   └── ...         # Organized into subfolders by category
+│   ├── integration/    # Integration tests (API flows, admin actions, fraud scenarios)
+│   │   └── ...         # Organized into subfolders: api, admin, fraud
+│   └── conftest.py     # Global pytest fixtures and configuration
 └── README.md
 ```
 
@@ -81,9 +84,9 @@
 - `POST /logout/`: Invalidate refresh tokens.
 
 **Loan Application Workflow:**
-1. **Creation** (`POST /loans/`):  
-   - New `LoanApplication` is created with `status = "PENDING"`.  
-   - Fraud checks triggered in [`fraud/services.py`](fraud/services.py:26).  
+1. **Creation** (`POST /loans/`):
+    - New `LoanApplication` is created with `status = "PENDING"` and includes a `purpose` (string describing the loan purpose).
+    - Fraud checks triggered in [`fraud/services.py`](fraud/services.py:26).
 2. **Auto-Approval**:  
    - If no fraud flags **and** `amount ≤ 1_000_000`, loan is auto-set to `APPROVED`.  
 3. **High-Value Review**:  
@@ -106,12 +109,9 @@
 See the full implementation in [`fraud/services.py`](fraud/services.py:26).
 
 ## Testing
-- **Unit Tests**: `tests/test_services.py`, `tests/test_models.py`.  
-- **Integration Tests**: `tests/test_api.py`, `tests/test_admin_endpoints.py`.  
-- Run the full suite with:  
-  ```
-  pytest --maxfail=1 --disable-warnings -q
-  ```
+- **Unit Tests**: run with `pytest tests/unit`
+- **Integration Tests**: run with `pytest tests/integration`
+- **All Tests**: run full suite with `pytest --maxfail=1 --disable-warnings -q`
 
 ## API Documentation
 - **Swagger UI**: `GET /swagger/`  
@@ -121,27 +121,42 @@ See the full implementation in [`fraud/services.py`](fraud/services.py:26).
 ## Setup & Running
 
 ### Local Development
-1. Copy `.env.example` to `.env` and configure environment variables.  
-2. Install dependencies:  
+1. Clone the repository:
+   ```bash
+   git clone https://github.com/your-username/loan-backend.git
    ```
+2. Navigate into the project directory:
+   ```bash
+   cd loan-backend
+   ```
+3. Copy `.env.example` to `.env` and configure environment variables:
+   ```bash
+   cp .env.example .env
+   ```
+4. Install dependencies:
+   ```bash
    poetry install
-   ```  
-3. Apply migrations:  
    ```
+5. Apply database migrations:
+   ```bash
    poetry run python manage.py migrate
-   ```  
-4. Start the development server:  
    ```
+6. Start the development server:
+   ```bash
    poetry run python manage.py runserver
    ```
 
 ### Docker
-1. Build and start containers:  
+1. Update the Poetry lock file:  
+   ```bash
+   poetry lock
+   ```  
+2. Build and start containers:
    ```
    docker-compose up --build
    ```  
-2. The API will be available at `http://localhost:8000/`.  
-3. Stop services with:  
+3. The API will be available at `http://localhost:8000/`.
+4. Stop services with:
    ```
    docker-compose down
    ```
