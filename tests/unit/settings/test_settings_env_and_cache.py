@@ -8,11 +8,11 @@ Tests:
 
 import importlib
 import sys
-import os
+# import os
 from pathlib import Path
 
 import pytest
-import environ
+import environ  # type: ignore[import-untyped]
 
 import loan_app.settings as settings_module
 
@@ -53,7 +53,7 @@ def test_read_env_called_when_not_testing(monkeypatch) -> None:
                                      "che"),
         # Testing False + no REDIS_URL => locmem fallback
         (["manage.py"], "", "django.core.cache.backends.locmem.Lo"
-                           "cMemCache"),
+                        "cMemCache"),
     ],
 )
 @pytest.mark.usefixtures("monkeypatch")
