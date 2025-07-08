@@ -120,16 +120,16 @@ See full implementation in [`fraud/services.py`](fraud/services.py:26).
 - Formatting & imports: `black .`, `isort .`
 
 ## API Documentation
-```markdown
+
 ![Swagger doc page](doc-files/images/swagger.png)
-```
+
 - Swagger UI: `GET /swagger/`
 
 - Redoc: `GET /redoc/`
 
-```markdown
+
 ![openapi spec](docs-files/images/open-api.png)
-```
+
 - OpenAPI JSON: `GET /swagger.json`
 
 ## Setup & Running
