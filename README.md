@@ -112,12 +112,12 @@
 See full implementation in [`fraud/services.py`](fraud/services.py:26).
 
 ## Testing & Quality Gates
-- Unit tests: `pytest tests/unit`
-- Integration tests: `pytest tests/integration`
-- Full suite: `pytest --maxfail=1 --disable-warnings -q`
+- Unit tests: `poetry run pytest tests/unit`
+- Integration tests: `poetry run pytest tests/integration`
+- Full suite: `poetry run pytest --maxfail=1 --disable-warnings -q`
 - Static typing: `poetry run mypy .`
 - Linting: `poetry run flake8`
-- Formatting & imports: `black .`, `isort .`
+- Formatting & imports: `poetry run black .`, `poetry run isort .`
 
 ## API Documentation
 
