@@ -35,5 +35,9 @@ jobs:
       - name: Type check with mypy
         run: poetry run mypy loan_app/ users/ loan/ fraud/ tests/
 
-      - name: Run tests
-        run: poetry run pytest --maxfail=1 --disable-warnings -q
+      - name: Run tests with coverage
+        run: |
+          poetry run pytest --maxfail=1 --disable-warnings -q \
+            --cov=loan_app --cov=loan --cov=fraud --cov=users \
+            --cov-report=term-missing \
+            --cov-fail-under=98
