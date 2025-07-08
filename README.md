@@ -121,7 +121,7 @@ See full implementation in [`fraud/services.py`](fraud/services.py:26).
 
 ## API Documentation
 
-![Swagger doc page](doc-files/images/swagger.png)
+![Swagger doc page](docs-files/images/swagger.png)
 
 - Swagger UI: `GET /swagger/`
 
