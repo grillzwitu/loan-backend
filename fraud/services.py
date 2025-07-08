@@ -7,7 +7,7 @@ loan applications.
 
 import datetime
 import logging
-from typing import List
+from typing import List, Optional
 
 from django.contrib.auth import get_user_model
 from django.core.cache import cache
@@ -60,11 +60,14 @@ def run_fraud_checks(loan: LoanApplication) -> List[str]:
 
     # Rule: email domain usage
     domain: str = loan.user.email.split("@")[-1]  # type: ignore[attr-defined]
-    cache_key_domain = f"fraud.domain_user_count_{domain}"
-    domain_user_count = cache.get(cache_key_domain)
+    cache_key_domain: str = f"fraud.domain_user_count_{domain}"
+    domain_user_count: Optional[int] = cache.get(cache_key_domain)
     if domain_user_count is None:
+        # Compute fresh domain user count and cache it
         domain_user_count = (
-            User.objects.filter(email__iendswith=domain).distinct().count()
+            User.objects.filter(email__iendswith=domain)
+            .distinct()
+            .count()
         )
         cache.set(cache_key_domain, domain_user_count, CACHE_TTL_5_MIN)
     if domain_user_count > 10:
