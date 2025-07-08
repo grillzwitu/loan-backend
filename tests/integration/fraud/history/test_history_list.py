@@ -17,9 +17,7 @@ from loan.models import LoanApplication
 def test_flagged_loans_history_endpoint_admin(
     admin_client: APIClient, user: Any
 ) -> None:
-    """
-    Verify that an admin user can list all loans ever flagged.
-    """
+    """Verify that an admin user can list all loans ever flagged."""
     loan = LoanApplication.objects.create(user=user, amount=6000000)
     reasons = run_fraud_checks(loan)
     assert reasons

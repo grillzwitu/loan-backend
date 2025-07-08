@@ -16,9 +16,8 @@ from loan.models import LoanApplication
 def test_admin_cannot_approve_non_pending_or_flagged(
     admin_client: APIClient, user: Any
 ) -> None:
-    """
-    Verify that an admin cannot approve loans that are neither pending nor flagged.
-    """
+    """Verify that an admin cannot approve loans that are neither pending nor
+    flagged."""
     loan = LoanApplication.objects.create(user=user, amount=3000)
     loan.status = "REJECTED"
     loan.save(update_fields=["status"])
@@ -31,9 +30,8 @@ def test_admin_cannot_approve_non_pending_or_flagged(
 def test_admin_cannot_reject_non_pending_or_flagged(
     admin_client: APIClient, user: Any
 ) -> None:
-    """
-    Verify that an admin cannot reject loans that are neither pending nor flagged.
-    """
+    """Verify that an admin cannot reject loans that are neither pending nor
+    flagged."""
     loan = LoanApplication.objects.create(user=user, amount=3000)
     loan.status = "APPROVED"
     loan.save(update_fields=["status"])
@@ -43,7 +41,10 @@ def test_admin_cannot_reject_non_pending_or_flagged(
 
 
 @pytest.mark.django_db
-def test_admin_cannot_flag_non_pending(admin_client: APIClient, user: Any) -> None:
+def test_admin_cannot_flag_non_pending(
+    admin_client: APIClient,
+    user: Any
+) -> None:
     """
     Verify that an admin cannot flag loans that are not pending.
     """

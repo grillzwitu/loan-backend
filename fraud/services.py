@@ -24,8 +24,7 @@ User = get_user_model()
 
 
 def run_fraud_checks(loan: LoanApplication) -> List[str]:
-    """
-    Run rule-based fraud detection checks on a LoanApplication instance.
+    """Run rule-based fraud detection checks on a LoanApplication instance.
 
     Flags loans if any of the following conditions are met:
       - More than 3 loan applications in the past 24 hours
@@ -44,7 +43,9 @@ def run_fraud_checks(loan: LoanApplication) -> List[str]:
     reasons: List[str] = []
 
     # Rule: more than 3 loans in the past 24 hours
-    one_day_ago: datetime.datetime = timezone.now() - datetime.timedelta(days=1)
+    one_day_ago: datetime.datetime = (
+        timezone.now() - datetime.timedelta(days=1)
+    )
     cache_key_recent = f"fraud.recent_loans.user_{loan.user_id}"
     recent_loan_count = LoanApplication.objects.filter(
         user_id=loan.user_id, created_at__gte=one_day_ago
@@ -83,7 +84,10 @@ def run_fraud_checks(loan: LoanApplication) -> List[str]:
         # Mock email notification to admin when a loan is flagged
         send_mail(
             subject=f"Loan {loan.id} Flagged",
-            message=(f"Loan {loan.id} flagged for reasons: " f"{', '.join(reasons)}"),
+            message=(
+                f"Loan {loan.id} flagged for reasons: "
+                f"{', '.join(reasons)}"
+            ),
             from_email=None,
             recipient_list=["admin@example.com"],
             fail_silently=True,

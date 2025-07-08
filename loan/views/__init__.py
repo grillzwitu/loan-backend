@@ -1,6 +1,4 @@
-"""
-Package for loan view implementations, re-exporting all view classes.
-"""
+"""Package for loan view implementations, re-exporting all view classes."""
 
 from loan.views_impl.actions import (LoanApplicationApproveView,
                                      LoanApplicationFlagView,

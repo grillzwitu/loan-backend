@@ -14,9 +14,7 @@ logger: logging.Logger = logging.getLogger(__name__)
 
 
 class FraudFlagSerializer(serializers.ModelSerializer):
-    """
-    Serializer for FraudFlag instances to expose reason and timestamp.
-    """
+    """Serializer for FraudFlag instances to expose reason and timestamp."""
 
     class Meta:
         model = FraudFlag
@@ -24,9 +22,8 @@ class FraudFlagSerializer(serializers.ModelSerializer):
 
 
 class FlaggedLoanSerializer(serializers.ModelSerializer):
-    """
-    Serializer for LoanApplication instances including nested fraud flags.
-    """
+    """Serializer for LoanApplication instances including nested fraud
+    flags."""
 
     fraud_flags = FraudFlagSerializer(many=True, read_only=True)
 

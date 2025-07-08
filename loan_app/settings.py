@@ -187,7 +187,9 @@ if TESTING:
 # ------------------------------------------------------------------------------
 STATIC_URL: str = "/static/"
 STATIC_ROOT: Path = BASE_DIR / "staticfiles"
-STATICFILES_STORAGE: str = "whitenoise.storage.CompressedManifestStaticFilesStorage"
+STATICFILES_STORAGE: str = (
+    "whitenoise.storage.CompressedManifestStaticFilesStorage"
+)
 
 # ------------------------------------------------------------------------------
 # Django REST Framework configuration
@@ -197,8 +199,8 @@ REST_FRAMEWORK: Dict[str, Any] = {
         "rest_framework_simplejwt.authentication.JWTAuthentication",
         "rest_framework.authentication.SessionAuthentication",
     ),
-    "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
-    "DEFAULT_PAGINATION_CLASS": ("rest_framework.pagination.PageNumberPagination"),
+    "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),  # noqa: E501
+    "DEFAULT_PAGINATION_CLASS": ("rest_framework.pagination.PageNumberPagination"),  # noqa: E501
     "PAGE_SIZE": 10,
 }
 

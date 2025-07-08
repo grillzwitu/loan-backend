@@ -15,9 +15,7 @@ from loan.models import LoanApplication
 
 @pytest.mark.django_db
 def test_admin_flag_pending_loan(admin_client: APIClient, user: Any) -> None:
-    """
-    Verify that an admin user can flag a pending loan application.
-    """
+    """Verify that an admin user can flag a pending loan application."""
     loan = LoanApplication.objects.create(user=user, amount=2500)
     assert loan.status == "PENDING"
     url = reverse("loan-flag", args=[loan.pk])

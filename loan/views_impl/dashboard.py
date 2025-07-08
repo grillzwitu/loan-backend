@@ -14,16 +14,12 @@ DASHBOARD_CACHE_TTL: int = 300  # Cache TTL in seconds for dashboard endpoint
 
 
 class LoanDashboardView(APIView):
-    """
-    Dashboard endpoint returning counts of loans by status.
-    """
+    """Dashboard endpoint returning counts of loans by status."""
 
     permission_classes = (IsAuthenticated,)
 
     def get(self, request: Request, *args: Any, **kwargs: Any) -> Response:
-        """
-        Handle GET request for loan status dashboard counts.
-        """
+        """Handle GET request for loan status dashboard counts."""
         cache_key = "loan_dashboard"
         data = cache.get(cache_key)
         if data is not None:

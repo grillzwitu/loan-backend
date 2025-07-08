@@ -20,10 +20,8 @@ User = get_user_model()
 
 @pytest.mark.django_db
 def test_run_fraud_checks_logging(caplog: LogCaptureFixture) -> None:
-    """
-    run_fraud_checks should log a WARNING when a
-    loan is flagged for high amount.
-    """
+    """run_fraud_checks should log a WARNING when a loan is flagged for high
+    amount."""
     caplog.set_level(logging.WARNING, logger="fraud.services")
     user = User.objects.create_user(
         username="user_log",
@@ -38,17 +36,18 @@ def test_run_fraud_checks_logging(caplog: LogCaptureFixture) -> None:
     run_fraud_checks(loan)
     # Assert a warning log was emitted
     assert any(
-        record.levelname == "WARNING" and "flagged for reasons" in record.getMessage()
+        (
+            record.levelname == "WARNING"
+            and "flagged for reasons" in record.getMessage()
+        )
         for record in caplog.records
     )
 
 
 @pytest.mark.django_db
 def test_withdraw_endpoint_logging(caplog: LogCaptureFixture) -> None:
-    """
-    Withdrawal endpoint should log INFO on successful withdrawal
-    and ERROR on invalid retry.
-    """
+    """Withdrawal endpoint should log INFO on successful withdrawal and ERROR
+    on invalid retry."""
     # Capture only ERROR logs since auto-approved loans cannot be withdrawn
     caplog.set_level(logging.ERROR, logger="loan.views")
     client = APIClient()

@@ -11,10 +11,8 @@ User = get_user_model()
 
 @pytest.mark.django_db
 def test_flagged_history_view_get_queryset() -> None:
-    """
-    The FlaggedLoanHistoryListView.get_queryset should filter
-    loans with any FraudFlag records, regardless of current status.
-    """
+    """The FlaggedLoanHistoryListView.get_queryset should filter loans with any
+    FraudFlag records, regardless of current status."""
     # Create a staff user and authenticate
     staff_user = User.objects.create_user(
         username="staff", password="pass", is_staff=True
@@ -22,7 +20,10 @@ def test_flagged_history_view_get_queryset() -> None:
     # Create two loans: one flagged, one not flagged
     loan_flagged = LoanApplication.objects.create(user=staff_user, amount=150)
     FraudFlag.objects.create(loan=loan_flagged, reason="test reason")
-    loan_not_flagged = LoanApplication.objects.create(user=staff_user, amount=250)
+    loan_not_flagged = LoanApplication.objects.create(
+        user=staff_user,
+        amount=250
+    )
     # Prepare the view and request
     view = FlaggedLoanHistoryListView()
     factory = APIRequestFactory()

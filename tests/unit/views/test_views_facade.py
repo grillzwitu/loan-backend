@@ -22,7 +22,5 @@ import loan.views as views
 )
 @pytest.mark.django_db
 def test_facade_exports_all_views(view_name: str) -> None:
-    """
-    Verify that the loan.views module exposes the expected view classes.
-    """
+    """Verify that the loan.views module exposes the expected view classes."""
     assert hasattr(views, view_name), f"{view_name} not found in loan.views"

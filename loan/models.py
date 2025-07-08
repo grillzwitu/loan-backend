@@ -7,8 +7,7 @@ from django.db import models
 
 
 class LoanApplication(models.Model):
-    """
-    Django model representing a user's loan application.
+    """Django model representing a user's loan application.
 
     Attributes:
         user (ForeignKey): User who applied for the loan.
@@ -49,16 +48,14 @@ class LoanApplication(models.Model):
     )
 
     class Meta:
-        """
-        Default ordering for LoanApplication queries to
-        prevent pagination warnings.
-        """
+        """Default ordering for LoanApplication queries to prevent pagination
+        warnings."""
 
         ordering = ["id"]
 
     def withdraw(self) -> None:
-        """
-        Withdraw a pending or flagged LoanApplication, changing its status to WITHDRAWN.
+        """Withdraw a pending or flagged LoanApplication, changing its status
+        to WITHDRAWN.
 
         Raises:
             ValueError: If the loan is not in PENDING or FLAGGED status.
@@ -69,8 +66,7 @@ class LoanApplication(models.Model):
         self.save(update_fields=["status"])
 
     def __str__(self) -> str:
-        """
-        Return a string representation of the LoanApplication instance.
+        """Return a string representation of the LoanApplication instance.
 
         Returns:
             str: Formatted string containing loan id and user.

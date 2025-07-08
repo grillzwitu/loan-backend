@@ -12,7 +12,6 @@ from pytest import MonkeyPatch
 # from pathlib import Path (unused)
 
 
-
 @pytest.mark.parametrize(
     "use_sqlite, expected_engine",
     [
@@ -23,10 +22,8 @@ from pytest import MonkeyPatch
 def test_database_engine_fallback(
     monkeypatch: MonkeyPatch, use_sqlite: bool, expected_engine: str
 ) -> None:
-    """
-    Verify DATABASES setting falls back to SQLite or PostgreSQL based
-    on USE_SQLITE env var.
-    """
+    """Verify DATABASES setting falls back to SQLite or PostgreSQL based on
+    USE_SQLITE env var."""
     # Arrange environment variables for test
     monkeypatch.setenv("USE_SQLITE", str(use_sqlite))
     monkeypatch.setenv("DB_NAME", "test_db")

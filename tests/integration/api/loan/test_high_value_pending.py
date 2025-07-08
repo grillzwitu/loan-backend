@@ -9,12 +9,16 @@ from rest_framework.test import APIClient
 
 
 @pytest.mark.django_db
-def test_high_value_loan_pending_for_admin_review(auth_client: APIClient) -> None:
-    """
-    Test that loans >1_000_000 remain pending.
-    """
+def test_high_value_loan_pending_for_admin_review(
+    auth_client: APIClient
+) -> None:
+    """Test that loans >1_000_000 remain pending."""
     list_url = reverse("loan-list-create")
-    resp_create = auth_client.post(list_url, {"amount": "2000000.00"}, format="json")
+    resp_create = auth_client.post(
+        list_url,
+        {"amount": "2000000.00"},
+        format="json"
+    )
     assert resp_create.status_code == status.HTTP_201_CREATED
     assert resp_create.data["status"] == "PENDING"
     loan_id = resp_create.data["id"]

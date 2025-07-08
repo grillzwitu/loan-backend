@@ -13,16 +13,19 @@ User = get_user_model()
 
 @pytest.mark.django_db
 def test_withdraw_other_user_forbidden() -> None:
-    """
-    Attempting to withdraw a loan by a non-owner should return 403 FORBIDDEN.
-    """
+    """Attempting to withdraw a loan by a non-owner should return 403
+    FORBIDDEN."""
     owner = User.objects.create_user(
         username="owner", email="owner@example.com", password="password"
     )
     other = User.objects.create_user(
         username="other", email="other@example.com", password="password"
     )
-    loan = LoanApplication.objects.create(user=owner, amount="500.00", purpose="Test")
+    loan = LoanApplication.objects.create(
+        user=owner,
+        amount="500.00",
+        purpose="Test"
+    )
     factory = APIRequestFactory()
     request = factory.post(f"/loans/{loan.pk}/withdraw/")
     request.user = other

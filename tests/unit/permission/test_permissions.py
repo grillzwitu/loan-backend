@@ -26,8 +26,7 @@ def test_regular_user_list_loans(
     auth_client: APIClient,
     user: Any,
 ) -> None:
-    """
-    Verify that a regular user can only list their own loan applications.
+    """Verify that a regular user can only list their own loan applications.
 
     Args:
         auth_client (APIClient): Authenticated client for regular user.
@@ -62,8 +61,7 @@ def test_regular_user_cannot_retrieve_other_loan(
     auth_client: APIClient,
     user: Any,
 ) -> None:
-    """
-    Verify that a regular user cannot retrieve another user's loan.
+    """Verify that a regular user cannot retrieve another user's loan.
 
     Args:
         auth_client (APIClient): Authenticated client for regular user.
@@ -91,8 +89,7 @@ def test_admin_user_list_all_loans(
     admin_client: APIClient,
     user: Any,
 ) -> None:
-    """
-    Verify that an admin user can list all loans regardless of owner.
+    """Verify that an admin user can list all loans regardless of owner.
 
     Args:
         admin_client (APIClient): Authenticated superuser client.
@@ -127,8 +124,7 @@ def test_admin_user_retrieve_any_loan(
     admin_client: APIClient,
     user: Any,
 ) -> None:
-    """
-    Verify that an admin user can retrieve any loan by ID.
+    """Verify that an admin user can retrieve any loan by ID.
 
     Args:
         admin_client (APIClient): Authenticated superuser client.
@@ -151,9 +147,8 @@ def test_admin_user_retrieve_any_loan(
 def test_regular_user_cannot_access_admin_endpoints(
     auth_client: APIClient, user: User
 ) -> None:
-    """
-    Verify that regular users cannot access admin-only endpoints for approve,
-    reject, and flag.
+    """Verify that regular users cannot access admin-only endpoints for
+    approve, reject, and flag.
 
     Args:
         auth_client (APIClient): Authenticated client for regular user.
@@ -187,8 +182,7 @@ def test_regular_user_cannot_access_admin_endpoints(
 def test_admin_user_can_approve_flagged_loan(
     admin_client: APIClient, user: User
 ) -> None:
-    """
-    Verify that an admin can approve loans that have been flagged.
+    """Verify that an admin can approve loans that have been flagged.
 
     Args:
         admin_client (APIClient): Authenticated superuser client.
@@ -213,8 +207,7 @@ def test_admin_user_can_approve_flagged_loan(
 def test_admin_user_can_reject_flagged_loan(
     admin_client: APIClient, user: User
 ) -> None:
-    """
-    Verify that an admin can reject loans that have been flagged.
+    """Verify that an admin can reject loans that have been flagged.
 
     Args:
         admin_client (APIClient): Authenticated superuser client.

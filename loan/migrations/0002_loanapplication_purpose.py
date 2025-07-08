@@ -7,7 +7,8 @@ class Migration(migrations.Migration):
     """Migration to add the 'purpose' field to the LoanApplication model.
 
     This migration adds:
-    - 'purpose': CharField(max_length=255), blank=True, default='', with help_text "Purpose for applying for the loan".
+    - 'purpose': CharField(max_length=255), blank=True,
+    default='', with help_text "Purpose for applying for the loan".
     """
 
     dependencies = [

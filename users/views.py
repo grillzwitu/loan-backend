@@ -46,7 +46,10 @@ class RegisterView(generics.CreateAPIView):
         serializer.is_valid(raise_exception=True)
         user = serializer.save()
         refresh = RefreshToken.for_user(user)
-        logger.info("Issued JWT refresh and access tokens for user: %s", user.username)
+        logger.info(
+            "Issued JWT refresh and access tokens for user: %s",
+            user.username,
+        )
         data = {
             "user": UserSerializer(user).data,
             "refresh": str(refresh),

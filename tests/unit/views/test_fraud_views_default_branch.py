@@ -14,10 +14,9 @@ User = get_user_model()
 
 @pytest.mark.django_db
 def test_flagged_loan_list_view_default_branch() -> None:
-    """
-    When no cache exists and flagged loans exist in the database,
-    FlaggedLoanListView should query the DB and return the list of flagged loans.
-    """
+    """When no cache exists and flagged loans exist in the database,
+    FlaggedLoanListView should query the DB and return the list of flagged
+    loans."""
     cache.clear()
     admin = User.objects.create_user(
         username="admin_default",
@@ -39,15 +38,16 @@ def test_flagged_loan_list_view_default_branch() -> None:
     view = FlaggedLoanListView.as_view()
     response = view(request)
     assert "results" in response.data and "count" in response.data
-    assert response.data["results"] and response.data["results"][0]["id"] == loan.id
+    results = response.data["results"]
+    assert results
+    assert results[0]["id"] == loan.id
 
 
 @pytest.mark.django_db
 def test_flagged_loan_history_view_default_branch() -> None:
-    """
-    When no cache exists and a loan has historical fraud flags,
-    FlaggedLoanHistoryListView should query the DB and return flagged loan history.
-    """
+    """When no cache exists and a loan has historical fraud flags,
+    FlaggedLoanHistoryListView should query the DB and return flagged loan
+    history."""
     cache.clear()
     admin2 = User.objects.create_user(
         username="admin_history",
@@ -56,7 +56,9 @@ def test_flagged_loan_history_view_default_branch() -> None:
         is_staff=True,
     )
     user2 = User.objects.create_user(
-        username="user_history", email="user_history@example.com", password="pw"
+        username="user_history",
+        email="user_history@example.com",
+        password="pw"
     )
     # Create a loan and a fraud flag (history)
     loan2 = LoanApplication.objects.create(user=user2, amount=200.00)
@@ -69,4 +71,6 @@ def test_flagged_loan_history_view_default_branch() -> None:
     view_history = FlaggedLoanHistoryListView.as_view()
     response2 = view_history(request2)
     assert "results" in response2.data and "count" in response2.data
-    assert response2.data["results"] and response2.data["results"][0]["id"] == loan2.id
+    results = response2.data["results"]
+    assert results
+    assert results[0]["id"] == loan2.id

@@ -11,10 +11,7 @@ User: Any = get_user_model()
 
 @pytest.mark.django_db
 def test_withdraw_pending_loan() -> None:
-    """
-    The withdraw method should set status to WITHDRAWN for
-    pending loans.
-    """
+    """The withdraw method should set status to WITHDRAWN for pending loans."""
     user = User.objects.create_user(
         username="user7",
         email="user7@example.com",
@@ -28,10 +25,8 @@ def test_withdraw_pending_loan() -> None:
 
 @pytest.mark.django_db
 def test_withdraw_non_pending_loan_raises() -> None:
-    """
-    The withdraw method should raise ValueError when loan is not
-    pending or flagged.
-    """
+    """The withdraw method should raise ValueError when loan is not pending or
+    flagged."""
     user = User.objects.create_user(
         username="user8",
         email="user8@example.com",
@@ -46,10 +41,8 @@ def test_withdraw_non_pending_loan_raises() -> None:
 
 @pytest.mark.django_db
 def test_withdraw_flagged_loan() -> None:
-    """
-    The withdraw method should set status to WITHDRAWN for flagged loans,
-    and preserve existing FraudFlag records.
-    """
+    """The withdraw method should set status to WITHDRAWN for flagged loans,
+    and preserve existing FraudFlag records."""
     user = User.objects.create_user(
         username="user9",
         email="user9@example.com",

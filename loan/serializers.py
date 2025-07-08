@@ -17,16 +17,15 @@ logger: logging.Logger = logging.getLogger(__name__)
 
 
 class LoanApplicationSerializer(serializers.ModelSerializer):
-    """
-    Serializer for LoanApplication instances to handle API input/output.
+    """Serializer for LoanApplication instances to handle API input/output.
 
     Attributes:
         user (PrimaryKeyRelatedField): Read-only field representing
             the loan applicant.
     """
 
-    user: serializers.PrimaryKeyRelatedField = serializers.PrimaryKeyRelatedField(
-        read_only=True
+    user: serializers.PrimaryKeyRelatedField = (
+        serializers.PrimaryKeyRelatedField(read_only=True)
     )
 
     class Meta:
@@ -49,9 +48,7 @@ class LoanApplicationSerializer(serializers.ModelSerializer):
         )
 
     def to_representation(self, instance: LoanApplication) -> Dict[str, Any]:
-        """
-        Cache serialized output for LoanApplication instances.
-        """
+        """Cache serialized output for LoanApplication instances."""
         cache_key = f"serializer_loan_{instance.pk}"
         data = cache.get(cache_key)
         if data is not None:
@@ -61,8 +58,7 @@ class LoanApplicationSerializer(serializers.ModelSerializer):
         return data
 
     def create(self, validated_data: Dict[str, Any]) -> LoanApplication:
-        """
-        Create and return a new LoanApplication instance for the given user.
+        """Create and return a new LoanApplication instance for the given user.
 
         Args:
             validated_data (Dict[str, Any]): Validated data for the serializer.

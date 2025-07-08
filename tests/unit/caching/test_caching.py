@@ -21,8 +21,7 @@ from loan.models import LoanApplication
 
 @pytest.mark.django_db
 def test_loan_detail_caching(auth_client: Any, user: Any) -> None:
-    """
-    Test loan detail caching behavior.
+    """Test loan detail caching behavior.
 
     Args:
         auth_client (APIClient): Authenticated API client for regular user.
@@ -54,8 +53,7 @@ def test_loan_detail_caching(auth_client: Any, user: Any) -> None:
 
 @pytest.mark.django_db
 def test_flagged_list_caching(admin_client: Any, user: Any) -> None:
-    """
-    Test flagged loans list caching behavior.
+    """Test flagged loans list caching behavior.
 
     Args:
         admin_client (APIClient): Authenticated admin client.
@@ -91,8 +89,7 @@ def test_flagged_list_caching(admin_client: Any, user: Any) -> None:
 
 @pytest.mark.django_db
 def test_loan_list_caching(auth_client: Any, user: Any) -> None:
-    """
-    Test user loan list caching behavior.
+    """Test user loan list caching behavior.
 
     Args:
         auth_client (APIClient): Authenticated API client for regular user.
@@ -125,8 +122,7 @@ def test_loan_list_caching(auth_client: Any, user: Any) -> None:
 
 @pytest.mark.django_db
 def test_loan_dashboard_caching(auth_client: Any, user: Any) -> None:
-    """
-    Test loan dashboard endpoint caching behavior.
+    """Test loan dashboard endpoint caching behavior.
 
     Args:
         auth_client (APIClient): Authenticated API client.
@@ -160,8 +156,7 @@ def test_loan_dashboard_caching(auth_client: Any, user: Any) -> None:
 
 @pytest.mark.django_db
 def test_serializer_caching(user: Any) -> None:
-    """
-    Test serializer-level caching for LoanApplication.
+    """Test serializer-level caching for LoanApplication.
 
     Args:
         user (User): Test user instance.
@@ -184,11 +179,15 @@ def test_serializer_caching(user: Any) -> None:
     data1 = serializer1.data
     # Step 4: Update loan amount to test stale cache
     LoanApplication.objects.filter(pk=loan.pk).update(amount=4321)
-    serializer2 = LoanApplicationSerializer(LoanApplication.objects.get(pk=loan.pk))
+    serializer2 = LoanApplicationSerializer(
+        LoanApplication.objects.get(pk=loan.pk)
+    )
     data2 = serializer2.data
     assert data2 == data1
     # Step 5: Clear cache and re-serialize to verify updated data
     cache.delete(cache_key)
-    serializer3 = LoanApplicationSerializer(LoanApplication.objects.get(pk=loan.pk))
+    serializer3 = LoanApplicationSerializer(
+        LoanApplication.objects.get(pk=loan.pk)
+    )
     data3 = serializer3.data
     assert data3["amount"] != data1["amount"]

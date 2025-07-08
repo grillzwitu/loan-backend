@@ -11,7 +11,8 @@ class Migration(migrations.Migration):
     This migration defines the 'LoanApplication' model with fields:
     - 'id': BigAutoField primary key.
     - 'amount': DecimalField(max_digits=10, decimal_places=2).
-    - 'status': CharField with choices PENDING, APPROVED, REJECTED, FLAGGED, WITHDRAWN. Default 'PENDING'.
+    - 'status': CharField with choices PENDING, APPROVED,
+    REJECTED, FLAGGED, WITHDRAWN. Default 'PENDING'.
     - 'created_at': DateTimeField(auto_now_add=True).
     - 'updated_at': DateTimeField(auto_now=True).
     - 'user': ForeignKey to AUTH_USER_MODEL with CASCADE deletion.

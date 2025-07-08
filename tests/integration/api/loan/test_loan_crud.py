@@ -1,5 +1,6 @@
 """
-Module: Integration tests for LoanApplication list, create, and retrieve endpoints.
+Module: Integration tests for LoanApplication list,
+create, and retrieve endpoints.
 """
 
 import pytest
@@ -10,9 +11,7 @@ from rest_framework.test import APIClient
 
 @pytest.mark.django_db
 def test_list_create_and_retrieve_loan(auth_client: APIClient) -> None:
-    """
-    Test listing empty list, creating a loan, and retrieving it.
-    """
+    """Test listing empty list, creating a loan, and retrieving it."""
     list_url = reverse("loan-list-create")
     resp_list = auth_client.get(list_url, format="json")
     assert resp_list.status_code == status.HTTP_200_OK

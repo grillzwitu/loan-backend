@@ -1,4 +1,7 @@
-"""Module: Additional unit tests for fraud services run_fraud_checks branch coverage."""
+"""
+Module: Additional unit tests for fraud services,
+run_fraud_checks branch coverage.
+"""
 
 import pytest
 from django.contrib.auth import get_user_model
@@ -13,9 +16,8 @@ User = get_user_model()
 
 @pytest.mark.django_db
 def test_auto_approve_small_amount() -> None:
-    """
-    run_fraud_checks should auto-approve loans with no flags and amount <=1,000,000.
-    """
+    """run_fraud_checks should auto-approve loans with no flags and amount
+    <=1,000,000."""
     cache.clear()
     user = User.objects.create_user(
         username="user_auto", email="auto@example.com", password="pw"
@@ -29,9 +31,7 @@ def test_auto_approve_small_amount() -> None:
 
 @pytest.mark.django_db
 def test_recent_loans_no_flag_for_few_loans() -> None:
-    """
-    run_fraud_checks should not flag when user has <=3 loans in 24 hours.
-    """
+    """run_fraud_checks should not flag when user has <=3 loans in 24 hours."""
     cache.clear()
     user = User.objects.create_user(
         username="user_recent", email="recent@example.com", password="pw"
@@ -49,9 +49,8 @@ def test_recent_loans_no_flag_for_few_loans() -> None:
 
 @pytest.mark.django_db
 def test_domain_user_count_cache_hits_branch() -> None:
-    """
-    run_fraud_checks should use cached domain user count on subsequent calls.
-    """
+    """run_fraud_checks should use cached domain user count on subsequent
+    calls."""
     cache.clear()
     test_domain = "cacheddomain.com"
     # Create 11 users with the same domain

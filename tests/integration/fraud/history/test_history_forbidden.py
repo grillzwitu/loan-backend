@@ -1,5 +1,6 @@
 """
-Module: Integration test for forbidden access to historical flagged loans endpoint.
+Module: Integration test for forbidden access to historical
+flagged loans endpoint.
 """
 
 from typing import Any
@@ -17,9 +18,8 @@ from loan.models import LoanApplication
 def test_flagged_loans_history_forbidden_regular_user(
     auth_client: APIClient, user: Any
 ) -> None:
-    """
-    Verify that a regular user is forbidden from accessing the historical flagged endpoint.
-    """
+    """Verify that a regular user is forbidden from accessing the historical
+    flagged endpoint."""
     loan = LoanApplication.objects.create(user=user, amount=6000000)
     run_fraud_checks(loan)
     url = reverse("flagged-loans-history")

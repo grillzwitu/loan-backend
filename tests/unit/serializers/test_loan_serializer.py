@@ -22,10 +22,8 @@ User = get_user_model()
 
 @pytest.mark.django_db
 def test_serializer_create_assigns_user_and_fields():
-    """
-    Verify that serializer.create method assigns the request user
-    to the new LoanApplication and sets amount and purpose correctly.
-    """
+    """Verify that serializer.create method assigns the request user to the new
+    LoanApplication and sets amount and purpose correctly."""
     user = User.objects.create_user(
         username="serializer_user",
         email="serializer@example.com",
@@ -39,7 +37,10 @@ def test_serializer_create_assigns_user_and_fields():
     )
     request.user = user
     data = {"amount": "1500.00", "purpose": "Test Loan Purpose"}
-    serializer = LoanApplicationSerializer(data=data, context={"request": request})
+    serializer = LoanApplicationSerializer(
+        data=data,
+        context={"request": request}
+    )
     assert serializer.is_valid(), serializer.errors
     loan = serializer.save()
     assert loan.user == user

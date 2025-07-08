@@ -17,18 +17,25 @@ logger = logging.getLogger(__name__)
 
 
 class LoanApplicationWithdrawView(APIView):
-    """
-    Allow users to withdraw a pending or flagged LoanApplication, changing its status to WITHDRAWN.
-    """
+    """Allow users to withdraw a pending or flagged LoanApplication, changing
+    its status to WITHDRAWN."""
 
     permission_classes = (IsAuthenticated,)
 
-    def post(self, request: Request, pk: int, *args: Any, **kwargs: Any) -> Response:
+    def post(
+        self,
+        request: Request,
+        pk: int,
+        *args: Any,
+        **kwargs: Any,
+    ) -> Response:
         loan = get_object_or_404(LoanApplication, pk=pk)
         if request.user != loan.user:
             return Response(status=status.HTTP_403_FORBIDDEN)
         logger.info(
-            "User %s attempting to withdraw loan id=%s", request.user.username, pk
+            "User %s attempting to withdraw loan id=%s",
+            request.user.username,
+            pk,
         )
         try:
             loan.withdraw()
@@ -39,23 +46,36 @@ class LoanApplicationWithdrawView(APIView):
                 request.user.username,
                 str(e),
             )
-            return Response({"detail": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"detail": str(e)},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
         logger.info(
-            "User %s successfully withdrew loan id=%s", request.user.username, pk
+            "User %s successfully withdrew loan id=%s",
+            request.user.username,
+            pk,
         )
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 class LoanApplicationApproveView(APIView):
-    """
-    Allow admin users to approve a pending or flagged LoanApplication.
-    """
+    """Allow admin users to approve a pending or flagged LoanApplication."""
 
     permission_classes = (IsAdminUser,)
 
-    def post(self, request: Request, pk: int, *args: Any, **kwargs: Any) -> Response:
+    def post(
+        self,
+        request: Request,
+        pk: int,
+        *args: Any,
+        **kwargs: Any,
+    ) -> Response:
         loan = get_object_or_404(LoanApplication, pk=pk)
-        logger.info("Admin %s approving loan id=%s", request.user.username, pk)
+        logger.info(
+            "Admin %s approving loan id=%s",
+            request.user.username,
+            pk,
+        )
         if loan.status not in ("PENDING", "FLAGGED"):
             return Response(
                 {"detail": "Only pending or flagged loans can be approved"},
@@ -69,15 +89,23 @@ class LoanApplicationApproveView(APIView):
 
 
 class LoanApplicationRejectView(APIView):
-    """
-    Allow admin users to reject a pending or flagged LoanApplication.
-    """
+    """Allow admin users to reject a pending or flagged LoanApplication."""
 
     permission_classes = (IsAdminUser,)
 
-    def post(self, request: Request, pk: int, *args: Any, **kwargs: Any) -> Response:
+    def post(
+        self,
+        request: Request,
+        pk: int,
+        *args: Any,
+        **kwargs: Any,
+    ) -> Response:
         loan = get_object_or_404(LoanApplication, pk=pk)
-        logger.info("Admin %s rejecting loan id=%s", request.user.username, pk)
+        logger.info(
+            "Admin %s rejecting loan id=%s",
+            request.user.username,
+            pk,
+        )
         if loan.status not in ("PENDING", "FLAGGED"):
             return Response(
                 {"detail": "Only pending or flagged loans can be rejected"},
@@ -91,13 +119,17 @@ class LoanApplicationRejectView(APIView):
 
 
 class LoanApplicationFlagView(APIView):
-    """
-    Allow admin users to manually flag a pending LoanApplication.
-    """
+    """Allow admin users to manually flag a pending LoanApplication."""
 
     permission_classes = (IsAdminUser,)
 
-    def post(self, request: Request, pk: int, *args: Any, **kwargs: Any) -> Response:
+    def post(
+        self,
+        request: Request,
+        pk: int,
+        *args: Any,
+        **kwargs: Any,
+    ) -> Response:
         loan = get_object_or_404(LoanApplication, pk=pk)
         reason = request.data.get("reason", "Manually flagged by admin")
         logger.info(

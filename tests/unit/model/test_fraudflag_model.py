@@ -17,9 +17,8 @@ User: Any = get_user_model()
 
 @pytest.mark.django_db
 def test_fraudflag_related_name_and_str() -> None:
-    """
-    Ensure FraudFlag is accessible via loan.fraud_flags and __str__ is correct.
-    """
+    """Ensure FraudFlag is accessible via loan.fraud_flags and __str__ is
+    correct."""
     user = User.objects.create_user(
         username="flaguser",
         email="flag@example.com",
@@ -37,10 +36,8 @@ def test_fraudflag_related_name_and_str() -> None:
 
 @pytest.mark.django_db
 def test_fraudflag_timestamp_auto_now_add() -> None:
-    """
-    Verify that flagged_at is automatically set to the current time
-    upon creation.
-    """
+    """Verify that flagged_at is automatically set to the current time upon
+    creation."""
     user = User.objects.create_user(  # type: ignore[attr-defined]
         username="timeuser",
         email="time@example.com",

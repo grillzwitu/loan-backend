@@ -9,10 +9,8 @@ User = get_user_model()
 
 @pytest.mark.django_db
 def test_run_fraud_checks_keeps_high_value_pending() -> None:
-    """
-    run_fraud_checks should keep loans >1,000,000 pending for admin review
-    when no other fraud flags.
-    """
+    """run_fraud_checks should keep loans >1,000,000 pending for admin review
+    when no other fraud flags."""
     user = User.objects.create_user(
         username="highuser", email="high@example.com", password="password"
     )

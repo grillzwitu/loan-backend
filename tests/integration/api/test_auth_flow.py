@@ -12,9 +12,7 @@ from rest_framework.test import APIClient
 
 @pytest.mark.django_db
 def test_user_registration_and_token_flow(api_client: APIClient) -> None:
-    """
-    Test registration endpoint and Simple JWT token issuance.
-    """
+    """Test registration endpoint and Simple JWT token issuance."""
     register_url = reverse("register")
     data = {
         "username": "newuser",
@@ -34,9 +32,7 @@ def test_user_registration_and_token_flow(api_client: APIClient) -> None:
 
 @pytest.mark.django_db
 def test_token_obtain_and_refresh(api_client: APIClient, user: Any) -> None:
-    """
-    Test login and token refresh endpoints using Simple JWT.
-    """
+    """Test login and token refresh endpoints using Simple JWT."""
     login_url = reverse("token_obtain_pair")
     refresh_url = reverse("token_refresh")
     credentials = {"username": user.username, "password": "password"}
@@ -60,9 +56,7 @@ def test_token_obtain_and_refresh(api_client: APIClient, user: Any) -> None:
 
 @pytest.mark.django_db
 def test_logout_endpoint(auth_client: APIClient) -> None:
-    """
-    Test logout endpoint responds with HTTP 204 No Content.
-    """
+    """Test logout endpoint responds with HTTP 204 No Content."""
     logout_url = reverse("logout")
     resp = auth_client.post(
         logout_url,

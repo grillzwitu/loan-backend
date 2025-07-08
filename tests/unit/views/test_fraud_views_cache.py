@@ -12,10 +12,8 @@ User = get_user_model()
 
 @pytest.mark.django_db
 def test_flagged_loan_list_view_cache_branch() -> None:
-    """
-    When cached data exists for flagged loan list, the view should
-    return the cached data without querying the database.
-    """
+    """When cached data exists for flagged loan list, the view should return
+    the cached data without querying the database."""
     admin = User.objects.create_user(
         username="admin",
         email="admin@example.com",
@@ -37,10 +35,8 @@ def test_flagged_loan_list_view_cache_branch() -> None:
 
 @pytest.mark.django_db
 def test_flagged_loan_history_view_cache_branch() -> None:
-    """
-    When cached data exists for flagged loan history list, the view should
-    return the cached data without querying the database.
-    """
+    """When cached data exists for flagged loan history list, the view should
+    return the cached data without querying the database."""
     admin2 = User.objects.create_user(
         username="admin2",
         email="admin2@example.com",
@@ -62,11 +58,13 @@ def test_flagged_loan_history_view_cache_branch() -> None:
 
 @pytest.mark.django_db
 def test_flagged_loan_list_view_cache_branch_dict() -> None:
-    """
-    When cached data is a dict for list view, should return cached dict unchanged.
-    """
+    """When cached data is a dict for list view, should return cached dict
+    unchanged."""
     admin = User.objects.create_user(
-        username="admind", email="admind@example.com", password="pw", is_staff=True
+        username="admind",
+        email="admind@example.com",
+        password="pw",
+        is_staff=True
     )
     dict_data = {
         "count": 1,
@@ -86,11 +84,13 @@ def test_flagged_loan_list_view_cache_branch_dict() -> None:
 
 @pytest.mark.django_db
 def test_flagged_loan_history_view_cache_branch_dict() -> None:
-    """
-    When cached data is a dict for history view, should return cached dict unchanged.
-    """
+    """When cached data is a dict for history view, should return cached dict
+    unchanged."""
     admin2 = User.objects.create_user(
-        username="admin2d", email="admin2d@example.com", password="pw", is_staff=True
+        username="admin2d",
+        email="admin2d@example.com",
+        password="pw",
+        is_staff=True
     )
     dict_data = {
         "count": 1,

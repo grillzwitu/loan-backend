@@ -10,9 +10,7 @@ User = get_user_model()
 
 @pytest.mark.django_db
 def test_run_fraud_checks_flags_high_amount() -> None:
-    """
-    run_fraud_checks should flag loans whose amount exceeds threshold.
-    """
+    """run_fraud_checks should flag loans whose amount exceeds threshold."""
     user = User.objects.create_user(
         username="user1", email="user1@example.com", password="password"
     )
@@ -29,9 +27,8 @@ def test_run_fraud_checks_flags_high_amount() -> None:
 
 @pytest.mark.django_db
 def test_run_fraud_checks_no_flags_for_low_amount() -> None:
-    """
-    run_fraud_checks should not flag loans whose amount is below threshold.
-    """
+    """run_fraud_checks should not flag loans whose amount is below
+    threshold."""
     user = User.objects.create_user(
         username="user2", email="user2@example.com", password="password"
     )

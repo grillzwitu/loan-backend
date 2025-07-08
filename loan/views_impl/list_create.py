@@ -17,17 +17,14 @@ CACHE_TTL: int = 300  # Cache TTL in seconds for loan list endpoints
 
 
 class LoanApplicationListCreateView(generics.ListCreateAPIView):
-    """
-    List and create LoanApplication instances for authenticated users.
-    """
+    """List and create LoanApplication instances for authenticated users."""
 
     permission_classes = (IsAuthenticated,)
     serializer_class = LoanApplicationSerializer
 
     def create(self, request: Request, *args: Any, **kwargs: Any) -> Response:
-        """
-        Handle POST request to create a new LoanApplication for the authenticated user.
-        """
+        """Handle POST request to create a new LoanApplication for the
+        authenticated user."""
         purpose = request.data.get("purpose", "")
         amount = request.data.get("amount")
         logger.info(
@@ -53,9 +50,7 @@ class LoanApplicationListCreateView(generics.ListCreateAPIView):
         )
 
     def list(self, request: Request, *args: Any, **kwargs: Any) -> Response:
-        """
-        List loan applications with caching for list endpoints.
-        """
+        """List loan applications with caching for list endpoints."""
         key = (
             "loan_list.all"
             if request.user.is_staff
@@ -69,12 +64,17 @@ class LoanApplicationListCreateView(generics.ListCreateAPIView):
         return Response(response.data)
 
     def get_queryset(self):
-        """
-        Return the QuerySet of LoanApplication instances.
+        """Return the QuerySet of LoanApplication instances.
+
         Regular users: only their own loans.
         Admin users: all loans.
         """
         user = self.request.user
         if user.is_staff:
             return LoanApplication.objects.all().order_by("id")
-        return LoanApplication.objects.filter(user_id=cast(int, user.pk)).order_by("id")
+        return (
+            LoanApplication.objects.filter(
+                user_id=cast(int, user.pk)
+            )
+            .order_by("id")
+        )

@@ -13,10 +13,8 @@ User = get_user_model()
 def test_run_fraud_checks_flags_many_users_same_domain() -> None:
     # Clear cache to ensure domain_user_count branch executes
     cache.clear()
-    """
-    run_fraud_checks should flag when email domain is used by more than
-    10 users.
-    """
+    """run_fraud_checks should flag when email domain is used by more than 10
+    users."""
     # Clear cache to ensure domain_user_count branch executes
     cache.clear()
     # Create 11 users with same domain
