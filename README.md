@@ -190,9 +190,9 @@ To test admin-only endpoints (`/approve/`, `/reject/`, `/flag/`), you need a sup
 Follow the [Local Development](#local-development) or [Docker Deployment](#docker-deployment) instructions above.
 
 
-```markdown
+
 ![Creating Loan Using Postman](docs-files/images/successful_loan_creation.png)
-```
+
 
 
 
