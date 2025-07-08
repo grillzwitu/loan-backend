@@ -151,10 +151,11 @@ See full implementation in [`fraud/services.py`](fraud/services.py:26).
    ```bash
    poetry install
    ```
-5. Apply migrations:
-   ```bash
-   poetry run python manage.py migrate
-   ```
+5. Create and apply migrations:
+    ```bash
+    poetry run python manage.py makemigrations --noinput
+    poetry run python manage.py migrate
+    ```
 6. Collect static files:
    ```bash
    poetry run python manage.py collectstatic --noinput
