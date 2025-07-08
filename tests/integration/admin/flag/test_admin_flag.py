@@ -25,4 +25,6 @@ def test_admin_flag_pending_loan(admin_client: APIClient, user: Any) -> None:
     assert response.data.get("status") == "FLAGGED"
     flags = FraudFlag.objects.filter(loan=loan)
     assert flags.count() == 1
-    assert flags.first().reason == "suspected fraud"
+    first_flag = flags.first()
+    assert first_flag is not None, "Expected a FraudFlag instance"
+    assert first_flag.reason == "suspected fraud"

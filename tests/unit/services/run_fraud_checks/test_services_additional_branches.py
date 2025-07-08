@@ -3,6 +3,8 @@ Module: Additional unit tests for fraud services,
 run_fraud_checks branch coverage.
 """
 
+from typing import Optional, cast
+
 import pytest
 from django.contrib.auth import get_user_model
 from django.core.cache import cache
@@ -36,14 +38,16 @@ def test_recent_loans_no_flag_for_few_loans() -> None:
     user = User.objects.create_user(
         username="user_recent", email="recent@example.com", password="pw"
     )
-    last_loan = None
+    last_loan: Optional[LoanApplication] = None
     for _ in range(3):
         loan = LoanApplication.objects.create(user=user, amount=1000)
         reasons = run_fraud_checks(loan)
         assert reasons == []
         assert not FraudFlag.objects.filter(loan=loan).exists()
         last_loan = loan
+    assert last_loan is not None, "Expected at least one loan to set last_loan"
     # Status should be APPROVED after three loans
+    last_loan = cast(LoanApplication, last_loan)
     assert last_loan.status == "APPROVED"
 
 
@@ -60,12 +64,26 @@ def test_domain_user_count_cache_hits_branch() -> None:
         )
     # First run to populate cache for domain count
     primary_user = User.objects.filter(email__endswith=test_domain).first()
-    loan1 = LoanApplication.objects.create(user=primary_user, amount=1000)
+    assert primary_user is not None, (
+        f"No users found with domain {test_domain}"
+    )
+    primary_user = cast(User, primary_user)  # type: ignore[valid-type]
+    loan1 = LoanApplication.objects.create(  # type: ignore[misc]
+        user=primary_user,
+        amount=1000,
+    )
     reasons1 = run_fraud_checks(loan1)
     assert "Email domain used by more than 10 users" in reasons1
     # Second run should hit cache and still flag without recalculating
     second_user = User.objects.filter(email__endswith=test_domain).last()
-    loan2 = LoanApplication.objects.create(user=second_user, amount=1000)
+    assert second_user is not None, (
+        f"No users found with domain {test_domain}"
+    )
+    second_user = cast(User, second_user)  # type: ignore[valid-type]
+    loan2 = LoanApplication.objects.create(  # type: ignore[misc]
+        user=second_user,
+        amount=1000,
+    )
     # Manually set a wrong count to test cache usage
     cache.set(f"fraud.domain_user_count_{test_domain}", 5, 300)
     reasons2 = run_fraud_checks(loan2)

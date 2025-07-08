@@ -4,6 +4,7 @@ as_view() returns a callable.
 """
 
 import pytest
+from typing import Any
 
 from loan import views
 
@@ -21,11 +22,11 @@ from loan import views
     ],
 )
 @pytest.mark.django_db
-def test_views_as_view_callable(view_class: type) -> None:
+def test_views_as_view_callable(view_class: Any) -> None:
     """
     Test that as_view() for each view class returns
     a callable withouterror.
     """
 
-    view_fn = view_class.as_view()
+    view_fn = view_class.as_view()  # type: ignore[attr-defined]
     assert callable(view_fn)
